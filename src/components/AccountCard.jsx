@@ -6,11 +6,14 @@ export default function AccountCard({ account, destLabel, onLaunch }) {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Launch ${account.label}`}
       className={`
         bg-white dark:bg-white/[0.03] border rounded-xl px-4 pt-4 pb-3.5 cursor-pointer
         transition-all duration-[250ms] relative overflow-hidden
         hover:bg-gray-50 dark:hover:bg-white/[0.06] hover:-translate-y-0.5
-        shadow-sm dark:shadow-none
+        shadow-sm dark:shadow-none outline-none focus-visible:ring-2 focus-visible:ring-accent/50
         ${isLaunching ? 'animate-[pulse-launch_1.5s_infinite]' : ''}
       `}
       style={{
@@ -19,6 +22,7 @@ export default function AccountCard({ account, destLabel, onLaunch }) {
         borderLeftColor: account.color,
       }}
       onClick={() => onLaunch(account.id)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onLaunch(account.id); } }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = `${account.color}60`;
         e.currentTarget.style.boxShadow = `0 4px 20px ${account.color}15`;

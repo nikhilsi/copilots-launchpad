@@ -5,9 +5,14 @@ export default function useDestinations() {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const data = await window.api.getDestinations();
-    setDestinations(data);
-    setLoading(false);
+    try {
+      const data = await window.api.getDestinations();
+      setDestinations(data);
+    } catch (err) {
+      console.error('Failed to load destinations:', err.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -27,13 +32,9 @@ export default function useDestinations() {
   };
 
   const deleteDestination = async (id) => {
-    try {
-      const result = await window.api.deleteDestination(id);
-      await refresh();
-      return result;
-    } catch (err) {
-      throw err;
-    }
+    const result = await window.api.deleteDestination(id);
+    await refresh();
+    return result;
   };
 
   return { destinations, loading, refresh, addDestination, updateDestination, deleteDestination };

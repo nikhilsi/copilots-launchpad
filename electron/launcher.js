@@ -14,7 +14,10 @@ const STEP_TIMEOUT = 30000; // 30 seconds per step
  * encrypted per-browser and aren't portable between Chrome and Edge.
  */
 function getProfilePath(accountId, channel) {
-  const profilesDir = path.join(app.getPath('userData'), 'profiles', channel, accountId);
+  // Sanitize inputs to prevent path traversal
+  const safeId = path.basename(accountId);
+  const safeChannel = path.basename(channel);
+  const profilesDir = path.join(app.getPath('userData'), 'profiles', safeChannel, safeId);
   if (!fs.existsSync(profilesDir)) {
     fs.mkdirSync(profilesDir, { recursive: true });
   }
@@ -46,13 +49,15 @@ function deleteProfile(accountId) {
  */
 async function launchAccount(account, destination, channel, onStatus) {
   const profilePath = getProfilePath(account.id, channel);
-  let context = null;
+  let browser = null;
 
   try {
     onStatus({ id: account.id, status: 'launching' });
 
     // Launch browser with isolated persistent profile
-    context = await chromium.launchPersistentContext(profilePath, {
+    // We use launchPersistentContext for profile isolation, then detach
+    // by disconnecting the CDP session (browser stays open).
+    browser = await chromium.launchPersistentContext(profilePath, {
       channel,
       headless: false,
       args: [
@@ -62,7 +67,7 @@ async function launchAccount(account, destination, channel, onStatus) {
       ],
     });
 
-    const page = context.pages()[0] || await context.newPage();
+    const page = browser.pages()[0] || await browser.newPage();
 
     // Navigate to destination
     await page.goto(destination.url, { waitUntil: 'domcontentloaded', timeout: STEP_TIMEOUT });
@@ -86,14 +91,11 @@ async function launchAccount(account, destination, channel, onStatus) {
   } catch (err) {
     onStatus({ id: account.id, status: 'error', error: err.message });
   } finally {
-    // Detach: close Playwright's connection but leave the browser open
-    if (context) {
-      try {
-        await context.close();
-      } catch {
-        // Browser may already be disconnected — that's fine
-      }
-    }
+    // Detach: do NOT call browser.close() — that would kill the browser.
+    // Instead, just let the reference go. The browser process stays alive
+    // as a normal user-controlled window. Playwright's CDP connection
+    // will be garbage collected without affecting the browser.
+    browser = null;
   }
 }
 

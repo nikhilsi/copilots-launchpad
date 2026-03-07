@@ -25,11 +25,15 @@ export default function AccountModal({ account, destinations, onSave, onClose })
     if (!form.label || !form.username || !form.group || !form.destinationId) return;
     if (!isEdit && !form.password) return;
     onSave(form);
+    // Clear password from component state immediately after submitting
+    setForm((prev) => ({ ...prev, password: '' }));
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-[1000]" onClick={onClose}>
-      <div className="bg-white dark:bg-[#151929] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl p-7 w-full max-w-[480px] shadow-xl dark:shadow-none" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-[1000]"
+      onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
+      <div role="dialog" aria-modal="true" aria-label={isEdit ? 'Edit Account' : 'Add Account'}
+        className="bg-white dark:bg-[#151929] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl p-7 w-full max-w-[480px] shadow-xl dark:shadow-none" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-5">
           {isEdit ? 'Edit Account' : 'Add Account'}
         </h3>

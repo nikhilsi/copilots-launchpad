@@ -7,6 +7,28 @@ const isDev = !app.isPackaged;
 let mainWindow = null;
 let tray = null;
 
+// --- Input Validation ---
+
+const ALLOWED_BROWSER_CHANNELS = ['chrome', 'msedge'];
+const ALLOWED_THEMES = ['light', 'dark', 'system'];
+const HEX_COLOR_RE = /^#[0-9A-Fa-f]{6}$/;
+const SAFE_URL_RE = /^https?:\/\//i;
+
+function validateAccount(account) {
+  if (!account || typeof account !== 'object') throw new Error('Invalid account data');
+  if (typeof account.label !== 'string' || !account.label.trim()) throw new Error('Label is required');
+  if (typeof account.username !== 'string' || !account.username.trim()) throw new Error('Username is required');
+  if (typeof account.group !== 'string' || !account.group.trim()) throw new Error('Group is required');
+  if (typeof account.destinationId !== 'string' || !account.destinationId.trim()) throw new Error('Destination is required');
+  if (account.color && !HEX_COLOR_RE.test(account.color)) throw new Error('Invalid color format');
+}
+
+function validateDestination(dest) {
+  if (!dest || typeof dest !== 'object') throw new Error('Invalid destination data');
+  if (typeof dest.label !== 'string' || !dest.label.trim()) throw new Error('Label is required');
+  if (typeof dest.url !== 'string' || !SAFE_URL_RE.test(dest.url)) throw new Error('URL must start with http:// or https://');
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 960,
@@ -95,14 +117,19 @@ ipcMain.handle('accounts:list', () => {
 });
 
 ipcMain.handle('accounts:add', (_event, account) => {
+  validateAccount(account);
+  if (typeof account.password !== 'string' || !account.password) throw new Error('Password is required');
   return store.addAccount(account);
 });
 
 ipcMain.handle('accounts:update', (_event, account) => {
+  if (!account?.id) throw new Error('Account ID is required');
+  validateAccount(account);
   return store.updateAccount(account);
 });
 
 ipcMain.handle('accounts:delete', (_event, { id }) => {
+  if (!id || typeof id !== 'string') throw new Error('Invalid account ID');
   const result = store.deleteAccount(id);
   launcher.deleteProfile(id);
   return result;
@@ -114,19 +141,24 @@ ipcMain.handle('destinations:list', () => {
 });
 
 ipcMain.handle('destinations:add', (_event, destination) => {
+  validateDestination(destination);
   return store.addDestination(destination);
 });
 
 ipcMain.handle('destinations:update', (_event, destination) => {
+  if (!destination?.id) throw new Error('Destination ID is required');
+  validateDestination(destination);
   return store.updateDestination(destination);
 });
 
 ipcMain.handle('destinations:delete', (_event, { id }) => {
+  if (!id || typeof id !== 'string') throw new Error('Invalid destination ID');
   return store.deleteDestination(id);
 });
 
 // Launch
 ipcMain.handle('launch:account', async (_event, { id }) => {
+  if (!id || typeof id !== 'string') throw new Error('Invalid account ID');
   const account = store.getAccountWithPassword(id);
   if (!account) throw new Error(`Account not found: ${id}`);
 
@@ -156,6 +188,7 @@ ipcMain.handle('theme:get', () => {
 });
 
 ipcMain.handle('theme:set', (_event, theme) => {
+  if (!ALLOWED_THEMES.includes(theme)) throw new Error('Invalid theme');
   return store.setTheme(theme);
 });
 
@@ -165,6 +198,7 @@ ipcMain.handle('browser:get', () => {
 });
 
 ipcMain.handle('browser:set', (_event, channel) => {
+  if (!ALLOWED_BROWSER_CHANNELS.includes(channel)) throw new Error('Invalid browser channel');
   return store.setBrowserChannel(channel);
 });
 
@@ -178,7 +212,7 @@ app.whenReady().then(() => {
         responseHeaders: {
           ...details.responseHeaders,
           'Content-Security-Policy': [
-            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'",
+            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'; object-src 'none'; frame-ancestors 'none'",
           ],
         },
       });

@@ -5,9 +5,14 @@ export default function useAccounts() {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const data = await window.api.getAccounts();
-    setAccounts(data);
-    setLoading(false);
+    try {
+      const data = await window.api.getAccounts();
+      setAccounts(data);
+    } catch (err) {
+      console.error('Failed to load accounts:', err.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {

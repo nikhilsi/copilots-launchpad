@@ -1,9 +1,9 @@
 const Store = require('electron-store');
 const crypto = require('crypto');
+const { safeStorage } = require('electron');
 
 const store = new Store({
   name: 'config',
-  encryptionKey: 'copilots-launchpad-v1',
   defaults: {
     accounts: [],
     destinations: [],
@@ -11,6 +11,31 @@ const store = new Store({
     browserChannel: process.platform === 'win32' ? 'msedge' : 'chrome',
   },
 });
+
+/**
+ * Encrypt a password using Electron's safeStorage (OS keychain-backed).
+ * Falls back to plaintext only if safeStorage is unavailable (rare).
+ */
+function encryptPassword(password) {
+  if (!password) return '';
+  if (safeStorage.isEncryptionAvailable()) {
+    return safeStorage.encryptString(password).toString('base64');
+  }
+  return password;
+}
+
+function decryptPassword(encrypted) {
+  if (!encrypted) return '';
+  if (safeStorage.isEncryptionAvailable()) {
+    try {
+      return safeStorage.decryptString(Buffer.from(encrypted, 'base64'));
+    } catch {
+      // Might be a legacy plaintext password — return as-is
+      return encrypted;
+    }
+  }
+  return encrypted;
+}
 
 // --- Accounts ---
 
@@ -22,7 +47,9 @@ function getAccounts() {
 
 function getAccountWithPassword(id) {
   const accounts = store.get('accounts', []);
-  return accounts.find((a) => a.id === id) || null;
+  const account = accounts.find((a) => a.id === id);
+  if (!account) return null;
+  return { ...account, password: decryptPassword(account.password) };
 }
 
 function addAccount(account) {
@@ -30,6 +57,7 @@ function addAccount(account) {
   const newAccount = {
     ...account,
     id: account.id || `acc-${crypto.randomUUID()}`,
+    password: encryptPassword(account.password),
   };
   accounts.push(newAccount);
   store.set('accounts', accounts);
@@ -41,9 +69,11 @@ function updateAccount(account) {
   const idx = accounts.findIndex((a) => a.id === account.id);
   if (idx === -1) throw new Error(`Account not found: ${account.id}`);
 
-  // If password is not provided in the update, keep the existing one
+  // If password is not provided in the update, keep the existing encrypted one
   if (account.password === undefined || account.password === '') {
     account.password = accounts[idx].password;
+  } else {
+    account.password = encryptPassword(account.password);
   }
 
   accounts[idx] = { ...accounts[idx], ...account };

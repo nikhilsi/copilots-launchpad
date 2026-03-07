@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "One-click launcher for Microsoft 365 test accounts",
   "author": "CoPilots Launchpad",
+  "license": "MIT",
   "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently \"vite --config vite.config.mjs\" \"wait-on http://localhost:5173 && electron .\"",

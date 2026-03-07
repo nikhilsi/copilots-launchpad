@@ -42,6 +42,7 @@ export default function Launcher({ accounts, destinations, onNavigateSettings, o
         <div className="flex items-center gap-2">
           <ThemeToggle theme={theme} onChangeTheme={onChangeTheme} />
           <button
+            aria-label="Settings"
             className="bg-black/5 dark:bg-white/5 border border-black/[0.08] dark:border-white/[0.08] rounded-[10px] p-2 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors hover:bg-black/10 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-slate-200 flex items-center"
             onClick={onNavigateSettings}
           >

@@ -10,8 +10,13 @@ export default function GroupSection({ groupName, accounts, color, collapsed, on
   return (
     <div className="mb-4">
       <div
-        className="flex items-center gap-2 py-2.5 cursor-pointer select-none text-slate-500 dark:text-slate-500"
+        role="button"
+        tabIndex={0}
+        aria-expanded={!collapsed}
+        aria-label={`${groupName} group, ${accounts.length} accounts`}
+        className="flex items-center gap-2 py-2.5 cursor-pointer select-none text-slate-500 dark:text-slate-500 outline-none focus-visible:ring-2 focus-visible:ring-accent/50 rounded"
         onClick={onToggle}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}
       >
         <ChevronIcon open={!collapsed} />
         <span

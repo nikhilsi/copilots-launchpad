@@ -12,14 +12,23 @@ export default function DestModal({ dest, onSave, onClose }) {
 
   const set = (key, val) => setForm((prev) => ({ ...prev, [key]: val }));
 
+  const [error, setError] = useState('');
+
   const handleSave = () => {
+    setError('');
     if (!form.label || !form.url) return;
+    if (!/^https?:\/\//i.test(form.url)) {
+      setError('URL must start with http:// or https://');
+      return;
+    }
     onSave(form);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-[1000]" onClick={onClose}>
-      <div className="bg-white dark:bg-[#151929] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl p-7 w-full max-w-[420px] shadow-xl dark:shadow-none" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-[1000]"
+      onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
+      <div role="dialog" aria-modal="true" aria-label={isEdit ? 'Edit Destination' : 'Add Destination'}
+        className="bg-white dark:bg-[#151929] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl p-7 w-full max-w-[420px] shadow-xl dark:shadow-none" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-5">
           {isEdit ? 'Edit Destination' : 'Add Destination'}
         </h3>
@@ -35,6 +44,10 @@ export default function DestModal({ dest, onSave, onClose }) {
           <input className={inputClass} value={form.url} placeholder="https://m365.cloud.microsoft/chat"
             onChange={(e) => set('url', e.target.value)} />
         </div>
+
+        {error && (
+          <div className="mb-3 text-red-500 dark:text-red-400 text-sm">{error}</div>
+        )}
 
         <div className="flex justify-end gap-2.5 mt-2">
           <button className="px-6 py-2.5 bg-transparent text-slate-500 dark:text-slate-400 border border-black/10 dark:border-white/10 rounded-lg text-sm font-medium font-sans cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
