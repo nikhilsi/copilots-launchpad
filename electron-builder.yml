@@ -1,0 +1,17 @@
+appId: com.copilots-launchpad.app
+productName: CoPilots Launchpad
+win:
+  target: nsis
+  icon: assets/icon.ico
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  installerIcon: assets/icon.ico
+files:
+  - electron/**/*
+  - build/**/*
+  - node_modules/**/*
+  - package.json
+extraResources:
+  - assets/*

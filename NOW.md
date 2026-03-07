@@ -6,29 +6,29 @@
 **Context**: See CURRENT_STATE.md for what's built, CHANGELOG.md for history
 ---
 
-## Phase 1: Scaffold & Electron Shell
+## Phase 1: Scaffold & Electron Shell — DONE
 
 ### 1a: Project Setup
-- [ ] Initialize npm project with Electron, React, Tailwind
-- [ ] Configure Vite (or webpack) for Electron renderer
-- [ ] Set up electron-builder.yml (NSIS, per-user, Windows target)
-- [ ] Verify `npm run dev` launches Electron window with React
+- [x] Initialize npm project with Electron, React, Tailwind
+- [x] Configure Vite for Electron renderer
+- [x] Set up electron-builder.yml (NSIS, per-user, Windows target)
+- [x] Verify `npm run dev` launches Electron window with React
 
 ### 1b: Electron Main Process
-- [ ] `electron/main.js` — BrowserWindow creation, dev vs prod URL loading
-- [ ] `electron/preload.js` — contextBridge exposing IPC channels
-- [ ] System tray — icon, click to open, right-click menu (Open Launcher, Quit)
-- [ ] Window close → minimize to tray (not quit)
+- [x] `electron/main.js` — BrowserWindow creation, dev vs prod URL loading
+- [x] `electron/preload.js` — contextBridge exposing IPC channels
+- [x] System tray — icon, click to open, right-click menu (Open Launcher, Quit)
+- [x] Window close → minimize to tray (not quit)
 
 ### 1c: Credential Store
-- [ ] `electron/store.js` — electron-store with encryption enabled
-- [ ] IPC handlers: `accounts:list`, `accounts:add`, `accounts:update`, `accounts:delete`
-- [ ] IPC handlers: `destinations:list`, `destinations:add`, `destinations:update`, `destinations:delete`
-- [ ] Verify credentials never reach renderer as plaintext (password masked in list responses)
+- [x] `electron/store.js` — electron-store with encryption enabled
+- [x] IPC handlers: `accounts:list`, `accounts:add`, `accounts:update`, `accounts:delete`
+- [x] IPC handlers: `destinations:list`, `destinations:add`, `destinations:update`, `destinations:delete`
+- [x] Verify credentials never reach renderer as plaintext (password masked in list responses)
 
 ---
 
-## Phase 2: React UI
+## Phase 2: React UI — CURRENT
 
 ### 2a: Port Prototype
 - [ ] Port `docs/CopilotLauncher.jsx` to proper component structure (see CLAUDE.md for file layout)
@@ -60,11 +60,6 @@
 - [ ] IPC `launch:status` events back to renderer (launching → open / error)
 - [ ] Status dot updates on account cards in real-time
 - [ ] Profile directory auto-creation on first launch per account
-
-### 3c: Edge WebDriver
-- [ ] Auto-detect installed Edge version on first launch
-- [ ] Download/cache matching WebDriver in app data directory
-- [ ] Handle version mismatch gracefully (clear message, not silent failure)
 
 ---
 

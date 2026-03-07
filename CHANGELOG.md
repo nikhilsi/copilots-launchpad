@@ -4,6 +4,20 @@ All notable changes to CoPilots Launchpad.
 
 ---
 
+## [0.2.0] - 2026-03-06
+
+### Phase 1: Scaffold & Electron Shell
+
+- **Project scaffold** — Vite + React + Tailwind CSS, `npm run dev` launches Electron with hot-reloading React renderer
+- **Electron main process** — BrowserWindow (dark bg, 960x700), dev/prod URL loading, system tray (click to open, right-click Open/Quit), close minimizes to tray
+- **Preload context bridge** — `window.api` exposes all IPC channels with proper cleanup for event listeners
+- **Credential store** — electron-store with AES-256 encryption, full CRUD for accounts and destinations, passwords stripped from list responses, destination delete guard
+- **IPC handlers** — 10 channels: accounts CRUD, destinations CRUD, launch:account, launch:status
+- **Build config** — electron-builder.yml for NSIS per-user Windows installer
+- **Placeholder tray icon** — 16x16 indigo square
+
+---
+
 ## [0.1.0] - 2026-03-06
 
 ### Design & Planning Complete
