@@ -6,11 +6,15 @@ const { app } = require('electron');
 const STEP_TIMEOUT = 30000; // 30 seconds per step
 
 /**
- * Get the profile directory path for an account.
+ * Get the profile directory path for an account, namespaced by browser channel.
  * Creates the directory if it doesn't exist.
+ *
+ * Structure: profiles/<channel>/<account-id>/
+ * This ensures switching browsers doesn't corrupt profiles — cookies are
+ * encrypted per-browser and aren't portable between Chrome and Edge.
  */
-function getProfilePath(accountId) {
-  const profilesDir = path.join(app.getPath('userData'), 'profiles', accountId);
+function getProfilePath(accountId, channel) {
+  const profilesDir = path.join(app.getPath('userData'), 'profiles', channel, accountId);
   if (!fs.existsSync(profilesDir)) {
     fs.mkdirSync(profilesDir, { recursive: true });
   }
@@ -18,37 +22,30 @@ function getProfilePath(accountId) {
 }
 
 /**
- * Delete the profile directory for an account.
+ * Delete the profile directories for an account across all browser channels.
+ * Called when an account is removed from settings.
  */
 function deleteProfile(accountId) {
-  const profilesDir = path.join(app.getPath('userData'), 'profiles', accountId);
-  if (fs.existsSync(profilesDir)) {
-    fs.rmSync(profilesDir, { recursive: true, force: true });
+  const channels = ['chrome', 'msedge'];
+  for (const channel of channels) {
+    const profileDir = path.join(app.getPath('userData'), 'profiles', channel, accountId);
+    if (fs.existsSync(profileDir)) {
+      fs.rmSync(profileDir, { recursive: true, force: true });
+    }
   }
 }
 
 /**
- * Determine which browser channel to use.
- * macOS dev: 'chrome' (Edge isn't always available)
- * Windows: 'msedge'
- */
-function getBrowserChannel() {
-  if (process.platform === 'win32') return 'msedge';
-  // On macOS, try Edge first, fall back to Chrome for dev
-  return 'chrome';
-}
-
-/**
- * Launch an account: open Edge with isolated profile, detect login scenario,
+ * Launch an account: open browser with isolated profile, detect login scenario,
  * fill credentials if needed, then detach.
  *
  * @param {Object} account - Full account object (with password)
  * @param {Object} destination - { id, label, url }
+ * @param {string} channel - Browser channel: 'chrome' or 'msedge'
  * @param {Function} onStatus - Callback: ({ id, status, error? }) => void
  */
-async function launchAccount(account, destination, onStatus) {
-  const profilePath = getProfilePath(account.id);
-  const channel = getBrowserChannel();
+async function launchAccount(account, destination, channel, onStatus) {
+  const profilePath = getProfilePath(account.id, channel);
   let browser = null;
 
   try {
@@ -94,8 +91,6 @@ async function launchAccount(account, destination, onStatus) {
     // Detach: close Playwright's connection but leave the browser open
     if (browser) {
       try {
-        // browser.close() closes Playwright's CDP connection.
-        // The browser process stays alive because we launched with persistent context flags.
         await browser.close();
       } catch {
         // Browser may already be disconnected — that's fine
@@ -113,23 +108,20 @@ async function launchAccount(account, destination, onStatus) {
  */
 async function detectScenario(page) {
   const result = await Promise.race([
-    // Scenario A: Session alive — look for common M365 app indicators
     page.waitForSelector('[data-app-name], #O365_MainLink_NavMenu, .ms-Persona, [class*="copilot"], #app', { timeout: STEP_TIMEOUT })
       .then(() => 'session-alive')
       .catch(() => null),
 
-    // Scenario B: Login required — Microsoft login form
     page.waitForSelector('input[name="loginfmt"]', { timeout: STEP_TIMEOUT })
       .then(() => 'login-required')
       .catch(() => null),
 
-    // Scenario C: Stale session — account picker
     page.waitForSelector('#otherTileText, [data-test-id="otherTile"], text=Use another account', { timeout: STEP_TIMEOUT })
       .then(() => 'stale-session')
       .catch(() => null),
   ]);
 
-  return result || 'login-required'; // Default to login if nothing matched
+  return result || 'login-required';
 }
 
 /**
@@ -137,25 +129,21 @@ async function detectScenario(page) {
  * username → Next → password → Sign In → Stay signed in? → Yes
  */
 async function fillCredentials(page, account) {
-  // Wait for and fill username
   await page.waitForSelector('input[name="loginfmt"]', { timeout: STEP_TIMEOUT });
   await page.fill('input[name="loginfmt"]', account.username);
   await page.click('input[type="submit"]');
 
-  // Wait for and fill password
   await page.waitForSelector('input[name="passwd"]', { timeout: STEP_TIMEOUT });
   await page.fill('input[name="passwd"]', account.password);
   await page.click('input[type="submit"]');
 
-  // Handle "Stay signed in?" prompt if it appears
   try {
     await page.waitForSelector('#idSIButton9, input[value="Yes"], text=Yes', { timeout: 10000 });
     await page.click('#idSIButton9, input[value="Yes"], text=Yes');
   } catch {
-    // Prompt may not appear (e.g. if previously accepted) — that's fine
+    // Prompt may not appear — that's fine
   }
 
-  // Wait for navigation to complete after login
   try {
     await page.waitForLoadState('domcontentloaded', { timeout: STEP_TIMEOUT });
   } catch {

@@ -134,8 +134,10 @@ ipcMain.handle('launch:account', async (_event, { id }) => {
   const destination = destinations.find((d) => d.id === account.destinationId);
   if (!destination) throw new Error(`Destination not found for account: ${id}`);
 
+  const browserChannel = store.getBrowserChannel();
+
   // Run launch in background — status updates go via mainWindow.webContents.send
-  launcher.launchAccount(account, destination, ({ id: accId, status, error }) => {
+  launcher.launchAccount(account, destination, browserChannel, ({ id: accId, status, error }) => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('launch:status', { id: accId, status, error });
     }
@@ -149,6 +151,15 @@ ipcMain.handle('theme:get', () => {
 
 ipcMain.handle('theme:set', (_event, theme) => {
   return store.setTheme(theme);
+});
+
+// Browser channel
+ipcMain.handle('browser:get', () => {
+  return store.getBrowserChannel();
+});
+
+ipcMain.handle('browser:set', (_event, channel) => {
+  return store.setBrowserChannel(channel);
 });
 
 // --- App Lifecycle ---

@@ -4,15 +4,28 @@ All notable changes to CoPilots Launchpad.
 
 ---
 
+## [0.6.0] - 2026-03-06
+
+### Cross-Platform & Browser Choice
+
+- **Cross-platform** — app now targets both macOS and Windows
+- **Configurable browser** — Chrome or Edge, selectable in Settings → General tab
+- **Platform-aware defaults** — Chrome on macOS, Edge on Windows (stored as `browserChannel` in electron-store)
+- **Namespaced profiles** — `profiles/<channel>/<account-id>/` isolates browser data per channel; cookies encrypted per-browser aren't portable
+- **Profile cleanup** — account deletion removes profiles across all browser channels
+- **Spec doc v1.1** — updated to capture theme, cross-platform, and browser choice features
+- **IPC channels** — added `browser:get` and `browser:set` for browser preference
+
+---
+
 ## [0.5.0] - 2026-03-06
 
-### Phase 4: Build & Ship (partial)
+### Phase 4: Build & Ship
 
 - **Production build** — `npm run build` produces optimized React bundle (170KB JS, 18KB CSS)
 - **Windows installer** — `npm run dist:win` cross-compiles 80MB NSIS .exe from macOS via Wine
 - **App icon** — placeholder indigo .ico for installer and taskbar
 - **Dist scripts** — `dist:win` and `dist:mac` added to package.json
-- **Remaining** — Windows 11 testing: installer, Edge integration, real M365 accounts, simultaneous sessions
 
 ---
 

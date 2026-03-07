@@ -11,6 +11,12 @@ export default function App() {
   const { theme, setTheme } = useTheme();
   const [view, setView] = useState('launcher');
   const [statuses, setStatuses] = useState({});
+  const [browserChannel, setBrowserChannel] = useState('chrome');
+
+  // Load browser channel preference on mount
+  useEffect(() => {
+    window.api.getBrowserChannel().then(setBrowserChannel);
+  }, []);
 
   // Auto-navigate to settings on first launch (no accounts)
   useEffect(() => {
@@ -46,6 +52,11 @@ export default function App() {
     }
   };
 
+  const handleChangeBrowserChannel = async (channel) => {
+    setBrowserChannel(channel);
+    await window.api.setBrowserChannel(channel);
+  };
+
   return (
     <div className="min-h-screen max-w-[960px] mx-auto px-6 pb-12">
       {view === 'launcher' && (
@@ -71,6 +82,8 @@ export default function App() {
           onBack={() => { refreshAccounts(); refreshDests(); setView('launcher'); }}
           theme={theme}
           onChangeTheme={setTheme}
+          browserChannel={browserChannel}
+          onChangeBrowserChannel={handleChangeBrowserChannel}
         />
       )}
     </div>

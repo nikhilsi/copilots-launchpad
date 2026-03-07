@@ -1,21 +1,21 @@
 # CoPilots Launchpad — Design & Technical Architecture Spec
 
-**Version:** 1.0  
-**Date:** March 6, 2026  
-**Status:** Ready for Implementation
+**Version:** 1.1
+**Date:** March 6, 2026
+**Status:** Implemented
 
 ---
 
 ## 1. Overview
 
 ### What It Is
-CoPilots Launchpad is a lightweight Electron desktop app for Windows that lets a user manage and launch multiple Microsoft 365 test accounts with a single click. Each click opens Microsoft Edge, automatically logs in with the selected account's credentials, and navigates to a configurable destination URL (e.g., Copilot Chat, M365 Admin Center).
+CoPilots Launchpad is a lightweight Electron desktop app for Windows and macOS that lets a user manage and launch multiple Microsoft 365 test accounts with a single click. Each click opens a browser (Chrome or Edge, configurable), automatically logs in with the selected account's credentials, and navigates to a configurable destination URL (e.g., Copilot Chat, M365 Admin Center).
 
 ### The Problem
-A QA/test user manages ~20 test accounts across different M365 license tiers and roles. Each day, they need to log in and out of these accounts repeatedly on a Windows 11 machine using Edge. Remembering which Edge profile maps to which account is painful, and the manual login flow (navigate → username → password → redirects → "Stay signed in?") is tedious.
+A QA/test user manages ~20 test accounts across different M365 license tiers and roles. Each day, they need to log in and out of these accounts repeatedly. Remembering which browser profile maps to which account is painful, and the manual login flow (navigate → username → password → redirects → "Stay signed in?") is tedious.
 
 ### The Solution
-One app. One click. Edge opens, logs in, lands on the right page. The app sits in the system tray and stays out of the way until needed. Accounts, credentials, and destination URLs are all configurable through a built-in settings screen.
+One app. One click. The browser opens, logs in, lands on the right page. The app sits in the system tray and stays out of the way until needed. Accounts, credentials, destination URLs, and browser preference are all configurable through a built-in settings screen.
 
 ### Key Design Principle
 **Delight the user.** Logging in should feel effortless, not like work.
@@ -78,31 +78,51 @@ All data stored locally using `electron-store` with encryption enabled. Credenti
 
 ---
 
-## 3. Edge Profile Management
+## 3. Browser Profile Management
 
-Each account gets its own isolated Edge profile directory. This enables:
+Each account gets its own isolated browser profile directory, namespaced by browser channel. This enables:
 
-- **Simultaneous sessions:** Multiple accounts open in separate Edge windows at the same time, side by side
+- **Simultaneous sessions:** Multiple accounts open in separate browser windows at the same time, side by side
 - **Session persistence:** Cookies and auth tokens persist between launches, so if a session is still valid, the login flow is skipped entirely — instant launch
+- **Browser independence:** Switching between Chrome and Edge doesn't corrupt profiles — cookies are encrypted per-browser and aren't portable
+
+### Configurable Browser
+
+The user can choose between **Google Chrome** and **Microsoft Edge** in Settings → General. The default is platform-aware:
+
+| Platform | Default Browser |
+|----------|----------------|
+| macOS    | Google Chrome   |
+| Windows  | Microsoft Edge  |
+
+The setting is stored in electron-store as `browserChannel` (`'chrome'` or `'msedge'`).
 
 ### Profile Directory Structure
 
+Profiles are namespaced by browser channel to prevent cross-contamination:
+
 ```
-%APPDATA%/copilots-launchpad/
-├── config.json          # electron-store (encrypted accounts + destinations)
+<app-data>/copilots-launchpad/
+├── config.json              # electron-store (encrypted accounts + destinations + settings)
 └── profiles/
-    ├── acc-01/          # Edge user data dir for account acc-01
-    ├── acc-02/          # Edge user data dir for account acc-02
-    └── ...
+    ├── chrome/
+    │   ├── acc-01/          # Chrome user data dir for account acc-01
+    │   └── acc-02/
+    └── msedge/
+        ├── acc-01/          # Edge user data dir for account acc-01
+        └── acc-02/
 ```
 
-### Important: These Are NOT Edge UI Profiles
+- **macOS:** `<app-data>` = `~/Library/Application Support/`
+- **Windows:** `<app-data>` = `%APPDATA%/`
 
-These profiles are **not** the profiles visible in Edge's built-in profile picker (Settings → Profiles). Playwright uses the `--user-data-dir=<path>` command-line flag, which tells Edge to use a completely separate folder for all its data — cookies, sessions, cache, local storage. Edge's own profile manager has no awareness of these directories. They are invisible, isolated sandboxes.
+### Important: These Are NOT Browser UI Profiles
+
+These profiles are **not** the profiles visible in the browser's built-in profile picker. Playwright uses the `--user-data-dir=<path>` command-line flag, which tells the browser to use a completely separate folder for all its data — cookies, sessions, cache, local storage. The browser's own profile manager has no awareness of these directories. They are invisible, isolated sandboxes.
 
 This is intentional and preferable:
-- No confusion with the user's "real" Edge profiles
-- No clutter in Edge's profile switcher UI
+- No confusion with the user's "real" browser profiles
+- No clutter in the browser's profile switcher UI
 - Fully managed by the app — created, used, and cleaned up automatically
 - No registry access required — `--user-data-dir` is a standard command-line argument pointing to a regular folder on disk
 
@@ -110,11 +130,10 @@ This is intentional and preferable:
 
 | Action                    | Admin Required? | Notes                                                   |
 |---------------------------|----------------|---------------------------------------------------------|
-| Install the app           | No             | NSIS installer configured for per-user install into `%LOCALAPPDATA%` |
-| Run the app               | No             | Creates folders in `%APPDATA%`, launches Edge with flags |
+| Install the app           | No             | Per-user install (NSIS on Windows, .dmg on macOS) |
+| Run the app               | No             | Creates folders in app data, launches browser with flags |
 | Create profile directories | No            | Standard user-writable folders under app data            |
-| Download Edge WebDriver   | No             | Cached in the app's own data folder                      |
-| Launch Edge via Playwright | No            | Uses the system-installed Edge with a command-line flag   |
+| Launch browser via Playwright | No         | Uses the system-installed Chrome/Edge with a command-line flag |
 
 The entire install and daily-use experience is fully admin-free.
 
@@ -122,24 +141,24 @@ The entire install and daily-use experience is fully admin-free.
 
 - **Created** automatically when an account is added (or on first launch of that account)
 - **Reused** on every subsequent launch — sessions persist
-- **Deleted** when an account is removed from settings (with confirmation)
+- **Deleted** when an account is removed from settings (with confirmation) — profiles are deleted across all browser channels
 
 ---
 
 ## 4. Playwright Login Flow
 
-The app uses `playwright-core` with `channel: 'msedge'` to drive the Edge browser already installed on the Windows 11 machine. No extra browser is bundled.
+The app uses `playwright-core` with the configured browser channel (`'chrome'` or `'msedge'`) to drive the system-installed browser. No extra browser is bundled.
 
 ### Launch Sequence
 
 When the user clicks an account card:
 
-1. App resolves the account's profile directory and destination URL
-2. Playwright launches Edge with `--user-data-dir=<profile path>` using the `msedge` channel
+1. App resolves the account's profile directory (namespaced by browser channel) and destination URL
+2. Playwright launches the browser with `--user-data-dir=<profile path>` using the configured channel
 3. Navigates to the destination URL
 4. Detects which scenario it's in (see below)
 5. Completes login if needed
-6. Detaches from the browser — Edge stays open as a normal window under user control
+6. Detaches from the browser — it stays open as a normal window under user control
 7. Sends status update back to the UI
 
 ### Scenario Detection
@@ -168,8 +187,7 @@ After navigation, the app races three selectors simultaneously using `Promise.ra
 
 - **No MFA:** The test tenant has MFA disabled. If MFA is ever enabled, the flow will need an additional handler.
 - **Timeout handling:** If any step takes longer than 30 seconds, the app should report an error status on the card rather than hanging silently.
-- **Detach after login:** Once the destination page loads, Playwright disconnects. The Edge window becomes a normal browser session. The app does not maintain control.
-- **Edge WebDriver:** `playwright-core` needs the matching Edge WebDriver. On first launch, the app should auto-detect the installed Edge version and download/cache the correct driver in the app data directory. This is invisible to the user.
+- **Detach after login:** Once the destination page loads, Playwright disconnects. The browser window becomes a normal session. The app does not maintain control.
 
 ---
 
@@ -181,9 +199,9 @@ After navigation, the app races three selectors simultaneously using `Promise.ra
 |------------------|---------------------------|---------------------------------------------|
 | App shell        | Electron                  | Desktop app framework, system tray, IPC     |
 | UI               | React + Tailwind CSS      | Launcher and Settings screens               |
-| Browser automation | playwright-core          | Edge login automation (lighter than full Playwright) |
+| Browser automation | playwright-core          | Chrome/Edge login automation (lighter than full Playwright) |
 | Data storage     | electron-store (encrypted) | Account credentials, destinations, settings |
-| Packaging        | electron-builder          | Windows .exe installer generation           |
+| Packaging        | electron-builder          | Windows .exe and macOS .dmg installer generation |
 
 ### Process Architecture
 
@@ -216,6 +234,10 @@ Electron has two processes. The security boundary between them is critical.
 | `destinations:delete` | Renderer → Main   | { id }                     | Delete a destination            |
 | `launch:account`      | Renderer → Main   | { id }                     | Trigger login flow for account  |
 | `launch:status`       | Main → Renderer   | { id, status, error? }     | Status update during launch     |
+| `theme:get`           | Renderer → Main   | none                       | Get current theme preference    |
+| `theme:set`           | Renderer → Main   | theme                      | Set theme (light/dark/system)   |
+| `browser:get`         | Renderer → Main   | none                       | Get browser channel preference  |
+| `browser:set`         | Renderer → Main   | channel                    | Set browser (chrome/msedge)     |
 
 ### Folder Structure
 
@@ -231,30 +253,34 @@ copilots-launchpad/
 │   ├── preload.js             # Context bridge between main and renderer
 │   │                          #   - Exposes safe IPC methods to React
 │   ├── launcher.js            # Playwright login flow
-│   │                          #   - launchAccount(account, destination, profilePath)
+│   │                          #   - launchAccount(account, destination, channel, onStatus)
 │   │                          #   - Scenario detection (A/B/C)
 │   │                          #   - Credential filling
 │   │                          #   - Status callbacks
 │   │                          #   - Profile directory management (create/delete/getPath)
+│   │                          #   - Profiles namespaced by browser channel
 │   └── store.js               # electron-store wrapper
 │                               #   - CRUD for accounts and destinations
+│                               #   - Theme and browser channel preferences
 │                               #   - Encryption config
 ├── src/
 │   ├── App.jsx                # Root component, view routing
 │   ├── components/
 │   │   ├── AccountCard.jsx    # Individual account card with status
-│   │   ├── AccountGrid.jsx   # Grid layout for cards
 │   │   ├── GroupSection.jsx   # Collapsible group with header
 │   │   ├── SearchBar.jsx     # Search/filter input
 │   │   ├── StatusIndicator.jsx # Dot indicator (idle/launching/open)
 │   │   ├── AccountModal.jsx  # Add/edit account form modal
-│   │   └── DestModal.jsx     # Add/edit destination form modal
+│   │   ├── DestModal.jsx     # Add/edit destination form modal
+│   │   ├── ThemeToggle.jsx   # Dark/light/system theme toggle
+│   │   └── Icons.jsx         # SVG icon components
 │   ├── pages/
 │   │   ├── Launcher.jsx      # Home screen — account cards grouped
 │   │   └── Settings.jsx      # Settings — Accounts + Destinations tabs
 │   ├── hooks/
 │   │   ├── useAccounts.js    # IPC hooks for account CRUD
-│   │   └── useDestinations.js # IPC hooks for destination CRUD
+│   │   ├── useDestinations.js # IPC hooks for destination CRUD
+│   │   └── useTheme.js       # Theme state management + OS preference detection
 │   └── styles/
 │       └── index.css          # Tailwind imports + custom styles
 ├── assets/
@@ -303,7 +329,7 @@ copilots-launchpad/
 
 **Navigation:** Back arrow + "Back to Launcher" link in the top bar
 
-**Tab bar:** Two tabs — Accounts | Destinations
+**Tab bar:** Three tabs — Accounts | Destinations | General
 
 **Accounts tab:**
 - Header: account count + "Add Account" button
@@ -317,6 +343,21 @@ copilots-launchpad/
 - Cannot delete a destination that is assigned to one or more accounts (show warning)
 - Edit opens modal
 
+**General tab:**
+- **Browser:** Choose between Google Chrome and Microsoft Edge. Profiles are isolated per browser — switching browsers requires a fresh login. Default: Chrome on macOS, Edge on Windows.
+
+### Theme
+
+The app supports three theme modes, toggled via a sun/moon/monitor icon control visible on both Launcher and Settings screens:
+
+| Mode   | Behavior |
+|--------|----------|
+| Light  | Light background, dark text |
+| Dark   | Dark background (#0C0F1A), light text |
+| System | Follows the OS preference via `prefers-color-scheme` |
+
+Theme preference is persisted in electron-store and applied via Tailwind's `darkMode: 'class'` strategy (toggling the `dark` class on `<html>`).
+
 ### Modals
 
 **Account Modal (Add/Edit):**
@@ -329,11 +370,13 @@ copilots-launchpad/
 
 ### Visual Design
 
-- Dark theme (background: #0C0F1A)
-- Typography: DM Sans (UI) + JetBrains Mono (usernames, URLs)
-- Accent: Indigo (#6366F1) as primary action color
-- Cards: subtle glass-like appearance with rgba backgrounds
-- Animations: card hover lift, launch pulse, status dot transitions
+- **Theme:** Dark/light/system mode (see Theme section above)
+- **Dark palette:** background #0C0F1A, light text
+- **Light palette:** background gray-50, dark text
+- **Typography:** DM Sans (UI) + JetBrains Mono (usernames, URLs)
+- **Accent:** Indigo (#6366F1) as primary action color
+- **Cards:** subtle glass-like appearance with rgba backgrounds, full dark: variants
+- **Animations:** card hover lift, launch pulse, status dot transitions
 
 ---
 
@@ -354,48 +397,33 @@ copilots-launchpad/
 
 ### Development Environment
 
-- **Develop on macOS** — Electron and React run cross-platform
-- **Playwright testing on Mac:** use `channel: 'chrome'` for local testing of the login flow logic; switch to `channel: 'msedge'` for Windows builds
-- **Final testing on Windows 11** — validate Edge integration and installer
+- **Develop on macOS** — Electron, React, and Playwright all run cross-platform
+- **Default browser channel:** Chrome on macOS, Edge on Windows (configurable in Settings → General)
+- **Testing on Windows 11** — validate Edge integration and NSIS installer
 
 ### Build & Packaging
 
-Use `electron-builder` to produce:
-- `.exe` installer (NSIS-based) for distribution
+Use `electron-builder` to produce platform-specific installers:
+- **Windows:** `.exe` installer (NSIS-based), per-user install to `%LOCALAPPDATA%`
+- **macOS:** `.dmg` installer
 - The installer bundles: Node.js runtime (via Electron), React app, playwright-core, electron-store, all npm dependencies
-- **Not bundled:** Edge browser itself (pre-installed on Windows 11)
-- **Edge WebDriver:** auto-downloaded on first launch based on detected Edge version
+- **Not bundled:** Chrome/Edge browsers (must be pre-installed on the target machine)
 
-### electron-builder.yml (key settings)
+### Build Scripts
 
-```yaml
-appId: com.copilots-launchpad.app
-productName: CoPilots Launchpad
-win:
-  target: nsis
-  icon: assets/icon.ico
-nsis:
-  oneClick: false
-  perMachine: false
-  allowToChangeInstallationDirectory: true
-  installerIcon: assets/icon.ico
-files:
-  - electron/**/*
-  - build/**/*
-  - node_modules/**/*
-  - package.json
-extraResources:
-  - assets/*
+```bash
+npm run build        # Build React production bundle
+npm run dist:win     # Package Windows .exe (NSIS installer)
+npm run dist:mac     # Package macOS .dmg
 ```
 
 ### Delivery
 
-1. Run `npm run build` (builds React) then `npm run dist` (packages Electron)
-2. Output: `CoPilots-Launchpad-Setup-1.0.0.exe`
+1. Run `npm run build` then `npm run dist:win` or `npm run dist:mac`
+2. Output: platform-specific installer in `dist/`
 3. Send to user
-4. User runs installer: Next → Next → Finish (no admin rights needed — installs to `%LOCALAPPDATA%`)
-5. App appears in Start Menu and system tray
-6. First launch opens Settings to add accounts and destinations
+4. User runs installer (no admin rights needed)
+5. First launch opens Settings to add accounts and destinations
 
 ---
 
@@ -404,10 +432,10 @@ extraResources:
 - **Credentials encrypted at rest** via electron-store's encryption (AES-256)
 - **Credentials never in renderer process** — only the main process reads/writes the store
 - **Profile directories are local** — session cookies stay on the machine
-- **No registry access** — Edge profiles use `--user-data-dir` (a command-line flag), not Windows registry keys
-- **No admin rights required** — install is per-user (`%LOCALAPPDATA%`), runtime uses only user-writable paths
-- **No network calls from the app itself** — only Playwright drives Edge to Microsoft URLs
-- **No modification to Edge installation** — the app uses the system-installed Edge as-is
+- **No registry access** — browser profiles use `--user-data-dir` (a command-line flag), not registry keys
+- **No admin rights required** — install is per-user, runtime uses only user-writable paths
+- **No network calls from the app itself** — only Playwright drives the browser to Microsoft URLs
+- **No modification to browser installation** — the app uses the system-installed Chrome/Edge as-is
 - **Test tenant only** — MFA is disabled; this app is designed for test environments, not production accounts
 
 ---

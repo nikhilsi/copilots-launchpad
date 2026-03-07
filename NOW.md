@@ -6,22 +6,25 @@
 **Context**: See CURRENT_STATE.md for what's built, CHANGELOG.md for history
 ---
 
-## Phase 1–3 — DONE
+## Phase 1–4 — DONE
 
 - [x] Scaffold (Vite + React + Tailwind + Electron)
 - [x] Electron shell, system tray, credential store, IPC
 - [x] Full React UI with dark/light/system theme
 - [x] Playwright login flow with scenario detection and detach
+- [x] Production builds (Windows .exe, macOS .dmg)
+- [x] Cross-platform support (macOS + Windows)
+- [x] Configurable browser (Chrome/Edge) with platform-aware defaults
+- [x] Spec doc updated to v1.1
 
-## Phase 4: Build & Ship — IN PROGRESS
+## Testing — NEXT
 
-- [x] `npm run build` → React production build (verified)
-- [x] `npm run dist:win` → cross-compiled Windows .exe from macOS (80MB NSIS installer)
-- [x] App icon (.ico) and dist scripts (`dist:win`, `dist:mac`)
+- [ ] Test on macOS with Chrome (dev environment)
+- [ ] Test browser switching (Chrome ↔ Edge) in Settings → General
 - [ ] Test installer on Windows 11 (no admin rights, Start Menu entry, tray icon)
 - [ ] Test with real M365 test accounts (Copilot Chat, Admin Center destinations)
 - [ ] Test simultaneous sessions (2-3 accounts open side by side)
-- [ ] Deliver .exe to user
+- [ ] Deliver installer to user
 
 ---
 
@@ -33,4 +36,4 @@
 - [ ] Auto-update (Electron auto-updater)
 - [ ] Keyboard shortcuts (quick-launch by number)
 - [ ] Account ordering (drag-and-drop within groups)
-- [ ] Run on Windows startup (optional toggle)
+- [ ] Run on startup (optional toggle)

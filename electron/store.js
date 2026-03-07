@@ -8,6 +8,7 @@ const store = new Store({
     accounts: [],
     destinations: [],
     theme: 'system',
+    browserChannel: process.platform === 'win32' ? 'msedge' : 'chrome',
   },
 });
 
@@ -104,6 +105,18 @@ function setTheme(theme) {
   return theme;
 }
 
+// --- Browser Channel ---
+
+function getBrowserChannel() {
+  const defaultChannel = process.platform === 'win32' ? 'msedge' : 'chrome';
+  return store.get('browserChannel', defaultChannel);
+}
+
+function setBrowserChannel(channel) {
+  store.set('browserChannel', channel);
+  return channel;
+}
+
 module.exports = {
   getAccounts,
   getAccountWithPassword,
@@ -116,4 +129,6 @@ module.exports = {
   deleteDestination,
   getTheme,
   setTheme,
+  getBrowserChannel,
+  setBrowserChannel,
 };

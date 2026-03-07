@@ -17,6 +17,10 @@ contextBridge.exposeInMainWorld('api', {
   getTheme: () => ipcRenderer.invoke('theme:get'),
   setTheme: (theme) => ipcRenderer.invoke('theme:set', theme),
 
+  // Browser channel
+  getBrowserChannel: () => ipcRenderer.invoke('browser:get'),
+  setBrowserChannel: (channel) => ipcRenderer.invoke('browser:set', channel),
+
   // Launch
   launchAccount: (id) => ipcRenderer.invoke('launch:account', { id }),
 

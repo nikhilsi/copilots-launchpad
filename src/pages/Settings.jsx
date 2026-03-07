@@ -9,6 +9,7 @@ export default function Settings({
   onAddAccount, onUpdateAccount, onDeleteAccount,
   onAddDestination, onUpdateDestination, onDeleteDestination,
   onBack, theme, onChangeTheme,
+  browserChannel, onChangeBrowserChannel,
 }) {
   const [tab, setTab] = useState('accounts');
   const [editingAccount, setEditingAccount] = useState(null);
@@ -77,7 +78,43 @@ export default function Settings({
             onClick={() => setTab('accounts')}>Accounts</button>
           <button className={`px-5 py-2 rounded-lg text-sm font-medium cursor-pointer border-none font-sans transition-colors ${tab === 'destinations' ? 'bg-white dark:bg-white/[0.08] text-slate-900 dark:text-slate-100 shadow-sm dark:shadow-none' : 'bg-transparent text-slate-500 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-400'}`}
             onClick={() => setTab('destinations')}>Destinations</button>
+          <button className={`px-5 py-2 rounded-lg text-sm font-medium cursor-pointer border-none font-sans transition-colors ${tab === 'general' ? 'bg-white dark:bg-white/[0.08] text-slate-900 dark:text-slate-100 shadow-sm dark:shadow-none' : 'bg-transparent text-slate-500 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-400'}`}
+            onClick={() => setTab('general')}>General</button>
         </div>
+
+        {/* General tab */}
+        {tab === 'general' && (
+          <div>
+            <div className="mb-6">
+              <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-2 block">Browser</label>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+                Choose which browser to use for launching accounts. Profiles are isolated per browser — switching browsers will require a fresh login.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  className={`px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer border transition-colors ${
+                    browserChannel === 'chrome'
+                      ? 'bg-accent/15 text-accent-light border-accent/30'
+                      : 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 border-black/[0.08] dark:border-white/[0.08] hover:bg-black/10 dark:hover:bg-white/10'
+                  }`}
+                  onClick={() => onChangeBrowserChannel('chrome')}
+                >
+                  Google Chrome
+                </button>
+                <button
+                  className={`px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer border transition-colors ${
+                    browserChannel === 'msedge'
+                      ? 'bg-accent/15 text-accent-light border-accent/30'
+                      : 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 border-black/[0.08] dark:border-white/[0.08] hover:bg-black/10 dark:hover:bg-white/10'
+                  }`}
+                  onClick={() => onChangeBrowserChannel('msedge')}
+                >
+                  Microsoft Edge
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Accounts tab */}
         {tab === 'accounts' && (
