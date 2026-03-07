@@ -54,7 +54,27 @@ One app. One click. The browser opens, logs in, and lands on the right page.
 
 ## Screenshots
 
-<!-- TODO: Add screenshots of Launcher and Settings views -->
+### Launcher
+
+| Light | Dark |
+|-------|------|
+| ![Launcher Light](docs/screenshots/launcher-light.png) | ![Launcher Dark](docs/screenshots/launcher-dark.png) |
+
+### Search & Filter
+
+![Search](docs/screenshots/search-filter.png)
+
+### Settings
+
+| Accounts | Destinations | General |
+|----------|-------------|---------|
+| ![Accounts](docs/screenshots/settings-accounts.png) | ![Destinations](docs/screenshots/settings-destinations.png) | ![General](docs/screenshots/settings-general.png) |
+
+### Modals
+
+| Add Account | Edit Account | Add Destination |
+|-------------|-------------|-----------------|
+| ![Add Account](docs/screenshots/modal-add-account.png) | ![Edit Account](docs/screenshots/modal-edit-account.png) | ![Add Destination](docs/screenshots/modal-add-destination.png) |
 
 ---
 
