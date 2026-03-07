@@ -81,6 +81,39 @@ function updateAccount(account) {
   return { ...accounts[idx], password: undefined, hasPassword: !!accounts[idx].password };
 }
 
+function importAccounts(accountsToImport) {
+  const accounts = store.get('accounts', []);
+  let imported = 0;
+  for (const acc of accountsToImport) {
+    const newAccount = {
+      ...acc,
+      id: `acc-${crypto.randomUUID()}`,
+      password: encryptPassword(acc.password),
+    };
+    accounts.push(newAccount);
+    imported++;
+  }
+  store.set('accounts', accounts);
+  return { imported };
+}
+
+function getAccountsForExport(includePasswords) {
+  const accounts = store.get('accounts', []);
+  const destinations = store.get('destinations', []);
+  return accounts.map((a) => {
+    const dest = destinations.find((d) => d.id === a.destinationId);
+    return {
+      label: a.label,
+      username: a.username,
+      password: includePasswords ? decryptPassword(a.password) : '',
+      destination: dest ? dest.label : '',
+      group: a.group,
+      color: a.color,
+      notes: a.notes || '',
+    };
+  });
+}
+
 function deleteAccount(id) {
   const accounts = store.get('accounts', []);
   store.set('accounts', accounts.filter((a) => a.id !== id));
@@ -151,6 +184,8 @@ module.exports = {
   getAccounts,
   getAccountWithPassword,
   addAccount,
+  importAccounts,
+  getAccountsForExport,
   updateAccount,
   deleteAccount,
   getDestinations,

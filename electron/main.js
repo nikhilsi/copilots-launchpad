@@ -128,6 +128,19 @@ ipcMain.handle('accounts:update', (_event, account) => {
   return store.updateAccount(account);
 });
 
+ipcMain.handle('accounts:import', (_event, { accounts }) => {
+  if (!Array.isArray(accounts) || accounts.length === 0) throw new Error('No accounts to import');
+  for (const acc of accounts) {
+    validateAccount(acc);
+    if (typeof acc.password !== 'string' || !acc.password) throw new Error(`Password is required for ${acc.label}`);
+  }
+  return store.importAccounts(accounts);
+});
+
+ipcMain.handle('accounts:export', (_event, { includePasswords }) => {
+  return store.getAccountsForExport(!!includePasswords);
+});
+
 ipcMain.handle('accounts:delete', (_event, { id }) => {
   if (!id || typeof id !== 'string') throw new Error('Invalid account ID');
   const result = store.deleteAccount(id);

@@ -48,3 +48,5 @@ test-results/
 # Misc
 *.tgz
 .cache/
+test-import.csv
+copilots-launchpad-accounts.csv

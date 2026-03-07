@@ -37,5 +37,15 @@ export default function useAccounts() {
     return result;
   };
 
-  return { accounts, loading, refresh, addAccount, updateAccount, deleteAccount };
+  const importAccounts = async (accountsList) => {
+    const result = await window.api.importAccounts(accountsList);
+    await refresh();
+    return result;
+  };
+
+  const exportAccounts = async (opts) => {
+    return window.api.exportAccounts(opts);
+  };
+
+  return { accounts, loading, refresh, addAccount, updateAccount, deleteAccount, importAccounts, exportAccounts };
 }

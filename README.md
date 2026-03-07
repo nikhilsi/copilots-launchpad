@@ -45,6 +45,7 @@ One app. One click. The browser opens, logs in, and lands on the right page.
 - **Grouped accounts** — organize by role, team, or license tier with color-coded groups
 - **Search & filter** — find accounts instantly across labels, usernames, groups, and destinations
 - **System tray** — close the window, app stays running; click tray icon to reopen
+- **CSV import/export** — bulk import accounts from CSV with preview screen, conflict detection, and defaults; export with optional password inclusion
 - **Cross-platform** — runs on macOS and Windows
 - **Encrypted credentials** — passwords encrypted via OS keychain (Electron safeStorage), never in the renderer process
 - **No admin rights** — per-user install, user-writable paths only

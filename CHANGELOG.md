@@ -4,6 +4,37 @@ All notable changes to CoPilots Launchpad.
 
 ---
 
+## [0.8.0] - 2026-03-06
+
+### CSV Import/Export
+
+- **CSV import** — file picker, custom CSV parser (handles quoted fields, BOM, case-insensitive headers), import preview screen with defaults bar (destination, group, color), conflict detection by username, selective row import
+- **CSV export** — export all accounts to CSV with optional plaintext password inclusion (opt-in toggle with security warning)
+- **Import preview** — dedicated screen showing status per row (Ready/Exists/Invalid), disabled rows for conflicts ("Already exists — delete first to reimport"), checkboxes for selective import
+- **IPC channels** — `accounts:import` and `accounts:export` with validation
+
+### Security Hardening
+
+- **Electron safeStorage** — passwords encrypted via OS keychain (Keychain on macOS, DPAPI on Windows), replacing hardcoded encryption key
+- **IPC input validation** — type checking, required fields, URL scheme whitelist (`http://`/`https://`), hex color format, browser channel whitelist
+- **Path traversal protection** — `path.basename()` sanitizes profile path components
+- **Accessibility** — ARIA roles, keyboard navigation (Enter/Space/Escape), focus-visible indicators across all interactive components
+- **CSP strengthened** — explicit directives for fonts, connect, object, frame-ancestors
+- **Password hygiene** — cleared from React state after modal save
+
+### GitHub Actions
+
+- **Automated release builds** — `.github/workflows/release.yml` triggered on `v*` tag push
+- **Matrix build** — macOS .dmg + Windows .exe on respective GitHub-hosted runners
+- **GitHub Release** — artifacts uploaded automatically
+
+### Other
+
+- **MIT license** added
+- **README rewritten** for public-facing repo (features, architecture, security, setup)
+
+---
+
 ## [0.7.0] - 2026-03-06
 
 ### Bug Fixes & Polish

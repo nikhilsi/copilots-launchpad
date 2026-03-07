@@ -6,7 +6,7 @@ import Launcher from './pages/Launcher';
 import Settings from './pages/Settings';
 
 export default function App() {
-  const { accounts, addAccount, updateAccount, deleteAccount, refresh: refreshAccounts } = useAccounts();
+  const { accounts, addAccount, updateAccount, deleteAccount, importAccounts, exportAccounts, refresh: refreshAccounts } = useAccounts();
   const { destinations, addDestination, updateDestination, deleteDestination, refresh: refreshDests } = useDestinations();
   const { theme, setTheme } = useTheme();
   const [view, setView] = useState('launcher');
@@ -76,6 +76,8 @@ export default function App() {
           onAddAccount={addAccount}
           onUpdateAccount={updateAccount}
           onDeleteAccount={deleteAccount}
+          onImportAccounts={importAccounts}
+          onExportAccounts={exportAccounts}
           onAddDestination={addDestination}
           onUpdateDestination={updateDestination}
           onDeleteDestination={deleteDestination}

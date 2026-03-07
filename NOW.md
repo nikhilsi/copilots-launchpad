@@ -17,17 +17,39 @@
 - [x] Configurable browser (Chrome/Edge) with platform-aware defaults
 - [x] Spec doc updated to v1.1
 
+## Security & Polish — DONE
+
+- [x] Electron safeStorage (OS keychain encryption)
+- [x] IPC input validation (types, URLs, colors, channels)
+- [x] Path traversal protection
+- [x] Accessibility (ARIA roles, keyboard navigation, focus indicators)
+- [x] CSP hardened
+- [x] MIT license
+
+## CSV Import/Export — DONE
+
+- [x] CSV export with optional password inclusion
+- [x] CSV import with file picker and custom parser
+- [x] Import preview screen (defaults bar, conflict detection, selective import)
+- [x] Design spec (`docs/0.8.0-csv-import-export-spec.md`)
+
+## GitHub Actions — DONE
+
+- [x] Release workflow on `v*` tag push (macOS .dmg + Windows .exe)
+- [x] Automated GitHub Release with artifacts
+
 ## macOS Testing — DONE
 
 - [x] Chrome + Edge launch, profile isolation, browser switching
 - [x] Multiple accounts, search, dark mode, delete cleanup, tray, persistence
+- [x] CSV import and export
 
 ## Windows Testing — NEXT
 
-- [ ] Rebuild Windows .exe with latest fixes (`npm run build && npm run dist:win`)
+- [ ] Tag and push to trigger release build
+- [ ] Download Windows .exe from GitHub Release
 - [ ] Test installer on Windows 11 (no admin rights, Start Menu entry, tray icon)
 - [ ] Test with real M365 test accounts (Copilot Chat, Admin Center destinations)
-- [ ] Deliver installer to user
 
 ---
 
@@ -35,7 +57,6 @@
 
 - [ ] One account, multiple destinations (button per destination or right-click menu)
 - [ ] Session health check (background ping, stale indicators)
-- [ ] Import/export accounts (JSON backup)
 - [ ] Auto-update (Electron auto-updater)
 - [ ] Keyboard shortcuts (quick-launch by number)
 - [ ] Account ordering (drag-and-drop within groups)

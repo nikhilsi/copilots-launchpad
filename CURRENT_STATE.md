@@ -6,11 +6,30 @@
 **What's Next**: See NOW.md
 ---
 
-**Phase**: Phase 4 Complete | **Status**: macOS tested, Windows testing next
+**Phase**: Phase 4 Complete + Security & CSV | **Status**: macOS tested, Windows testing next
 
 ---
 
 ## What's Done
+
+### CSV Import/Export (March 6, 2026)
+- **CSV import** — file picker, custom CSV parser (handles quoted fields, BOM), import preview screen with defaults bar (destination, group, color), conflict detection by username, selective import via checkboxes
+- **CSV export** — export all accounts to CSV with optional plaintext password inclusion (opt-in with warning)
+- **Import preview screen** — dedicated view showing each row's status (Ready/Exists/Invalid), disabled rows for conflicts, bulk defaults application
+- **Design spec** — `docs/0.8.0-csv-import-export-spec.md`
+
+### Security Hardening (March 6, 2026)
+- **Electron safeStorage** — passwords encrypted via OS keychain (Keychain on macOS, DPAPI on Windows), replacing hardcoded encryption key
+- **IPC input validation** — type checking, required field validation, URL scheme whitelist (`http://`/`https://`), hex color format, browser channel whitelist in main process
+- **Path traversal protection** — `path.basename()` sanitizes account IDs and channel names in profile paths
+- **Accessibility** — `role`, `tabIndex`, `aria-label`, `aria-expanded`, `aria-modal`, keyboard handlers (Enter/Space/Escape), `focus-visible` ring styles across all interactive components
+- **CSP strengthened** — explicit directives for fonts, connect, object, frame-ancestors
+- **Password hygiene** — passwords cleared from React state after modal save
+
+### GitHub Actions Release (March 6, 2026)
+- **Automated builds** — `.github/workflows/release.yml` triggered on `v*` tag push
+- **Matrix build** — macOS .dmg + Windows .exe on respective runners
+- **GitHub Release** — artifacts uploaded automatically via `softprops/action-gh-release`
 
 ### Cross-Platform & Browser Choice (March 6, 2026)
 - **Cross-platform support** — app runs on both macOS and Windows
@@ -46,7 +65,7 @@
 
 - [x] Chrome launch + profile isolation
 - [x] Edge launch + profile isolation
-- [x] Browser switching (Chrome ↔ Edge) in Settings → General
+- [x] Browser switching (Chrome <-> Edge) in Settings → General
 - [x] Multiple simultaneous accounts (separate browser windows)
 - [x] Status dot (yellow on launch)
 - [x] Search/filter on Launcher
@@ -54,6 +73,8 @@
 - [x] Delete account (profile cleanup across both browsers)
 - [x] Close-to-tray behavior
 - [x] Data persistence after app restart
+- [x] CSV export (with and without passwords)
+- [x] CSV import (preview, defaults, conflict detection)
 
 ## Windows Testing — NEXT
 
@@ -69,5 +90,5 @@
 - **Supported platforms:** Windows 11, macOS
 - **Supported browsers:** Google Chrome, Microsoft Edge (configurable in Settings)
 - **Dev platform:** macOS
-- **Storage:** `<app-data>/copilots-launchpad/config.json` (encrypted)
+- **Storage:** `<app-data>/copilots-launchpad/config.json` (encrypted via safeStorage)
 - **Profiles:** `<app-data>/copilots-launchpad/profiles/<channel>/<account-id>/`

@@ -6,6 +6,8 @@ contextBridge.exposeInMainWorld('api', {
   addAccount: (account) => ipcRenderer.invoke('accounts:add', account),
   updateAccount: (account) => ipcRenderer.invoke('accounts:update', account),
   deleteAccount: (id) => ipcRenderer.invoke('accounts:delete', { id }),
+  importAccounts: (accounts) => ipcRenderer.invoke('accounts:import', { accounts }),
+  exportAccounts: (opts) => ipcRenderer.invoke('accounts:export', opts),
 
   // Destinations
   getDestinations: () => ipcRenderer.invoke('destinations:list'),

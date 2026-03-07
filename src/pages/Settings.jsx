@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { BackIcon, PlusIcon, EditIcon, TrashIcon } from '../components/Icons';
+import { BackIcon, PlusIcon, EditIcon, TrashIcon, UploadIcon, DownloadIcon } from '../components/Icons';
 import ThemeToggle from '../components/ThemeToggle';
 import AccountModal from '../components/AccountModal';
 import DestModal from '../components/DestModal';
+import ImportPreview from '../components/ImportPreview';
 
 export default function Settings({
   accounts, destinations,
   onAddAccount, onUpdateAccount, onDeleteAccount,
+  onImportAccounts, onExportAccounts,
   onAddDestination, onUpdateDestination, onDeleteDestination,
   onBack, theme, onChangeTheme,
   browserChannel, onChangeBrowserChannel,
@@ -15,8 +17,12 @@ export default function Settings({
   const [editingAccount, setEditingAccount] = useState(null);
   const [editingDest, setEditingDest] = useState(null);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [importCSV, setImportCSV] = useState(null);
+  const [exportIncludePasswords, setExportIncludePasswords] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
 
-  const switchTab = (t) => { setError(''); setTab(t); };
+  const switchTab = (t) => { setError(''); setSuccessMsg(''); setTab(t); };
 
   const getDestLabel = (destId) => {
     const d = destinations.find((x) => x.id === destId);
@@ -33,7 +39,7 @@ export default function Settings({
   };
 
   const handleDeleteAccount = async (id) => {
-    if (!confirm('Delete this account? The associated Edge profile will also be removed.')) return;
+    if (!confirm('Delete this account? The associated browser profile will also be removed.')) return;
     await onDeleteAccount(id);
   };
 
@@ -52,11 +58,85 @@ export default function Settings({
       await onDeleteDestination(id);
     } catch (err) {
       const msg = err.message || '';
-      // Strip Electron's IPC error prefix to show a clean message
       const clean = msg.replace(/^Error invoking remote method '[^']+': Error: /, '');
       setError(clean || 'Cannot delete — destination is assigned to accounts.');
     }
   };
+
+  const handleImportClick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setImportCSV(ev.target.result);
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
+  const handleImportClose = (importedCount) => {
+    setImportCSV(null);
+    if (importedCount > 0) {
+      setSuccessMsg(`Imported ${importedCount} account${importedCount !== 1 ? 's' : ''} successfully`);
+      setTimeout(() => setSuccessMsg(''), 5000);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const data = await onExportAccounts({ includePasswords: exportIncludePasswords });
+      if (data.length === 0) {
+        setError('No accounts to export');
+        setShowExportModal(false);
+        return;
+      }
+      const headers = ['label', 'username', 'password', 'destination', 'group', 'color', 'notes'];
+      const csvRows = [headers.join(',')];
+      for (const row of data) {
+        const values = headers.map((h) => {
+          const val = (row[h] || '').toString();
+          // Quote fields that contain commas or quotes
+          if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+            return `"${val.replace(/"/g, '""')}"`;
+          }
+          return val;
+        });
+        csvRows.push(values.join(','));
+      }
+      const csv = csvRows.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'copilots-launchpad-accounts.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      setShowExportModal(false);
+      setExportIncludePasswords(false);
+    } catch (err) {
+      const msg = err.message || '';
+      setError(msg.replace(/^Error invoking remote method '[^']+': Error: /, '') || 'Export failed');
+      setShowExportModal(false);
+    }
+  };
+
+  // Show import preview if CSV is loaded
+  if (importCSV) {
+    return (
+      <ImportPreview
+        csvText={importCSV}
+        accounts={accounts}
+        destinations={destinations}
+        onImport={onImportAccounts}
+        onClose={handleImportClose}
+      />
+    );
+  }
 
   return (
     <div>
@@ -73,6 +153,12 @@ export default function Settings({
       {error && (
         <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 dark:text-red-400 text-sm">
           {error}
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-600 dark:text-emerald-400 text-sm">
+          {successMsg}
         </div>
       )}
 
@@ -126,10 +212,21 @@ export default function Settings({
           <div>
             <div className="flex justify-between items-center mb-4">
               <span className="text-sm text-slate-500 dark:text-slate-600">{accounts.length} accounts configured</span>
-              <button className="inline-flex items-center gap-1.5 px-4 py-2 bg-accent/15 text-accent-light border border-accent/30 rounded-lg text-sm font-medium cursor-pointer font-sans hover:bg-accent/25"
-                onClick={() => setEditingAccount({})}>
-                <PlusIcon /> Add Account
-              </button>
+              <div className="flex gap-2">
+                <button className="inline-flex items-center gap-1.5 px-3 py-2 bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-black/[0.08] dark:border-white/[0.08] rounded-lg text-sm font-medium cursor-pointer font-sans hover:bg-black/10 dark:hover:bg-white/10"
+                  onClick={handleImportClick}>
+                  <UploadIcon /> Import
+                </button>
+                <button className="inline-flex items-center gap-1.5 px-3 py-2 bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-black/[0.08] dark:border-white/[0.08] rounded-lg text-sm font-medium cursor-pointer font-sans hover:bg-black/10 dark:hover:bg-white/10"
+                  onClick={() => setShowExportModal(true)}
+                  disabled={accounts.length === 0}>
+                  <DownloadIcon /> Export
+                </button>
+                <button className="inline-flex items-center gap-1.5 px-4 py-2 bg-accent/15 text-accent-light border border-accent/30 rounded-lg text-sm font-medium cursor-pointer font-sans hover:bg-accent/25"
+                  onClick={() => setEditingAccount({})}>
+                  <PlusIcon /> Add Account
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-[1fr_1.5fr_1fr_0.7fr_auto] gap-3 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-600 border-b border-black/[0.06] dark:border-white/[0.06]">
@@ -155,7 +252,7 @@ export default function Settings({
             ))}
 
             {accounts.length === 0 && (
-              <div className="text-center py-8 text-slate-400 dark:text-slate-600 text-sm">No accounts yet. Click "Add Account" to get started.</div>
+              <div className="text-center py-8 text-slate-400 dark:text-slate-600 text-sm">No accounts yet. Click "Add Account" or "Import" to get started.</div>
             )}
           </div>
         )}
@@ -210,6 +307,34 @@ export default function Settings({
           onSave={handleSaveDest}
           onClose={() => setEditingDest(null)}
         />
+      )}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-[1000]"
+          onClick={() => setShowExportModal(false)} onKeyDown={(e) => { if (e.key === 'Escape') setShowExportModal(false); }}>
+          <div role="dialog" aria-modal="true" aria-label="Export Accounts"
+            className="bg-white dark:bg-[#151929] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl p-7 w-full max-w-[420px] shadow-xl dark:shadow-none" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-4">Export Accounts</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+              Export {accounts.length} account{accounts.length !== 1 ? 's' : ''} to a CSV file.
+            </p>
+            <label className="flex items-center gap-2 mb-4 cursor-pointer">
+              <input type="checkbox" checked={exportIncludePasswords}
+                onChange={(e) => setExportIncludePasswords(e.target.checked)} />
+              <span className="text-sm text-slate-700 dark:text-slate-300">Include passwords</span>
+            </label>
+            {exportIncludePasswords && (
+              <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-600 dark:text-amber-400 text-xs">
+                Passwords will be exported in plaintext. Handle the file with care.
+              </div>
+            )}
+            <div className="flex justify-end gap-2.5">
+              <button className="px-6 py-2.5 bg-transparent text-slate-500 dark:text-slate-400 border border-black/10 dark:border-white/10 rounded-lg text-sm font-medium font-sans cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+                onClick={() => { setShowExportModal(false); setExportIncludePasswords(false); }}>Cancel</button>
+              <button className="px-6 py-2.5 bg-accent text-white border-none rounded-lg text-sm font-semibold font-sans cursor-pointer hover:bg-accent-light"
+                onClick={handleExport}>Export CSV</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
