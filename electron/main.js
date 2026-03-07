@@ -136,11 +136,17 @@ ipcMain.handle('launch:account', async (_event, { id }) => {
 
   const browserChannel = store.getBrowserChannel();
 
-  // Run launch in background — status updates go via mainWindow.webContents.send
-  launcher.launchAccount(account, destination, browserChannel, ({ id: accId, status, error }) => {
+  const sendStatus = ({ id: accId, status, error }) => {
+    console.log(`[launch] ${accId}: ${status}${error ? ` — ${error}` : ''}`);
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('launch:status', { id: accId, status, error });
     }
+  };
+
+  // Run launch in background — status updates go via mainWindow.webContents.send
+  launcher.launchAccount(account, destination, browserChannel, sendStatus).catch((err) => {
+    console.error(`[launch] Unhandled error for ${id}:`, err.message);
+    sendStatus({ id, status: 'error', error: err.message });
   });
 });
 

@@ -16,6 +16,8 @@ export default function Settings({
   const [editingDest, setEditingDest] = useState(null);
   const [error, setError] = useState('');
 
+  const switchTab = (t) => { setError(''); setTab(t); };
+
   const getDestLabel = (destId) => {
     const d = destinations.find((x) => x.id === destId);
     return d ? d.label : 'Unknown';
@@ -49,7 +51,10 @@ export default function Settings({
     try {
       await onDeleteDestination(id);
     } catch (err) {
-      setError(err.message || 'Cannot delete — destination is assigned to accounts.');
+      const msg = err.message || '';
+      // Strip Electron's IPC error prefix to show a clean message
+      const clean = msg.replace(/^Error invoking remote method '[^']+': Error: /, '');
+      setError(clean || 'Cannot delete — destination is assigned to accounts.');
     }
   };
 
@@ -75,11 +80,11 @@ export default function Settings({
         {/* Tab bar */}
         <div className="flex gap-1 mb-6 bg-black/[0.03] dark:bg-white/[0.03] rounded-[10px] p-1">
           <button className={`px-5 py-2 rounded-lg text-sm font-medium cursor-pointer border-none font-sans transition-colors ${tab === 'accounts' ? 'bg-white dark:bg-white/[0.08] text-slate-900 dark:text-slate-100 shadow-sm dark:shadow-none' : 'bg-transparent text-slate-500 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-400'}`}
-            onClick={() => setTab('accounts')}>Accounts</button>
+            onClick={() => switchTab('accounts')}>Accounts</button>
           <button className={`px-5 py-2 rounded-lg text-sm font-medium cursor-pointer border-none font-sans transition-colors ${tab === 'destinations' ? 'bg-white dark:bg-white/[0.08] text-slate-900 dark:text-slate-100 shadow-sm dark:shadow-none' : 'bg-transparent text-slate-500 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-400'}`}
-            onClick={() => setTab('destinations')}>Destinations</button>
+            onClick={() => switchTab('destinations')}>Destinations</button>
           <button className={`px-5 py-2 rounded-lg text-sm font-medium cursor-pointer border-none font-sans transition-colors ${tab === 'general' ? 'bg-white dark:bg-white/[0.08] text-slate-900 dark:text-slate-100 shadow-sm dark:shadow-none' : 'bg-transparent text-slate-500 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-400'}`}
-            onClick={() => setTab('general')}>General</button>
+            onClick={() => switchTab('general')}>General</button>
         </div>
 
         {/* General tab */}

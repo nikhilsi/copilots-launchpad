@@ -46,24 +46,22 @@ function deleteProfile(accountId) {
  */
 async function launchAccount(account, destination, channel, onStatus) {
   const profilePath = getProfilePath(account.id, channel);
-  let browser = null;
+  let context = null;
 
   try {
     onStatus({ id: account.id, status: 'launching' });
 
-    // Launch browser with isolated profile
-    browser = await chromium.launch({
+    // Launch browser with isolated persistent profile
+    context = await chromium.launchPersistentContext(profilePath, {
       channel,
       headless: false,
       args: [
-        `--user-data-dir=${profilePath}`,
         '--no-first-run',
         '--no-default-browser-check',
         '--disable-popup-blocking',
       ],
     });
 
-    const context = browser.contexts()[0] || await browser.newContext();
     const page = context.pages()[0] || await context.newPage();
 
     // Navigate to destination
@@ -89,9 +87,9 @@ async function launchAccount(account, destination, channel, onStatus) {
     onStatus({ id: account.id, status: 'error', error: err.message });
   } finally {
     // Detach: close Playwright's connection but leave the browser open
-    if (browser) {
+    if (context) {
       try {
-        await browser.close();
+        await context.close();
       } catch {
         // Browser may already be disconnected — that's fine
       }
