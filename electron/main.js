@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, session } = require('electron');
 const path = require('path');
 const store = require('./store');
+const launcher = require('./launcher');
 
 const isDev = !app.isPackaged;
 let mainWindow = null;
@@ -102,7 +103,9 @@ ipcMain.handle('accounts:update', (_event, account) => {
 });
 
 ipcMain.handle('accounts:delete', (_event, { id }) => {
-  return store.deleteAccount(id);
+  const result = store.deleteAccount(id);
+  launcher.deleteProfile(id);
+  return result;
 });
 
 // Destinations
@@ -120,6 +123,23 @@ ipcMain.handle('destinations:update', (_event, destination) => {
 
 ipcMain.handle('destinations:delete', (_event, { id }) => {
   return store.deleteDestination(id);
+});
+
+// Launch
+ipcMain.handle('launch:account', async (_event, { id }) => {
+  const account = store.getAccountWithPassword(id);
+  if (!account) throw new Error(`Account not found: ${id}`);
+
+  const destinations = store.getDestinations();
+  const destination = destinations.find((d) => d.id === account.destinationId);
+  if (!destination) throw new Error(`Destination not found for account: ${id}`);
+
+  // Run launch in background — status updates go via mainWindow.webContents.send
+  launcher.launchAccount(account, destination, ({ id: accId, status, error }) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('launch:status', { id: accId, status, error });
+    }
+  });
 });
 
 // Theme

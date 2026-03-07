@@ -4,16 +4,29 @@ All notable changes to CoPilots Launchpad.
 
 ---
 
+## [0.4.0] - 2026-03-06
+
+### Phase 3: Playwright Integration
+
+- **Login flow** — `electron/launcher.js`: Playwright launches browser with `--user-data-dir` per account for isolated sessions, detects login scenario via `Promise.race`, fills Microsoft credentials (username → Next → password → Sign In → Stay signed in? → Yes), 30s timeout per step, detaches after login
+- **Scenario detection** — Session alive (skip login), Login required (fill credentials), Stale session (click "Use another account" then fill)
+- **Browser channel** — `channel: 'chrome'` on macOS dev, `channel: 'msedge'` on Windows prod
+- **Profile management** — Auto-create profile dir on first launch, delete profile dir when account is removed
+- **Status updates** — Real-time `launch:status` IPC events from launcher → main → renderer
+- **Launch IPC handler** — Fetches account with password from store, resolves destination, runs launch asynchronously
+
+---
+
 ## [0.3.0] - 2026-03-06
 
 ### Phase 2: React UI
 
-- **Component structure** — AccountCard, GroupSection, SearchBar, StatusIndicator, AccountModal, DestModal, ThemeToggle, Icons — all ported from prototype into proper files
+- **Component structure** — AccountCard, GroupSection, SearchBar, StatusIndicator, AccountModal, DestModal, ThemeToggle, Icons
 - **IPC hooks** — `useAccounts.js` and `useDestinations.js` connect React to electron-store via IPC
-- **Launcher page** — account cards in responsive grid, grouped with collapsible colored headers, search/filter, empty states, launch trigger with status dots
-- **Settings page** — Accounts and Destinations tabs, table layout with inline edit/delete, Add buttons, modals for full CRUD
-- **Dark/light/system theme** — three-way toggle persisted in electron-store, respects OS preference via `prefers-color-scheme`, Tailwind `darkMode: 'class'` strategy
-- **Visual polish** — DM Sans + JetBrains Mono fonts, indigo accent (#6366F1), card hover lift, launch pulse animation, proper light and dark colors on all surfaces, modals, inputs, and tables
+- **Launcher page** — account cards in responsive grid, grouped with collapsible colored headers, search/filter, empty states
+- **Settings page** — Accounts and Destinations tabs, table layout with inline edit/delete, modals for full CRUD
+- **Dark/light/system theme** — three-way toggle persisted in electron-store, respects OS preference
+- **Visual polish** — DM Sans + JetBrains Mono, indigo accent, card hover lift, launch pulse animation
 
 ---
 
@@ -21,13 +34,11 @@ All notable changes to CoPilots Launchpad.
 
 ### Phase 1: Scaffold & Electron Shell
 
-- **Project scaffold** — Vite + React + Tailwind CSS, `npm run dev` launches Electron with hot-reloading React renderer
-- **Electron main process** — BrowserWindow (dark bg, 960x700), dev/prod URL loading, system tray (click to open, right-click Open/Quit), close minimizes to tray
-- **Preload context bridge** — `window.api` exposes all IPC channels with proper cleanup for event listeners
-- **Credential store** — electron-store with AES-256 encryption, full CRUD for accounts and destinations, passwords stripped from list responses, destination delete guard
-- **IPC handlers** — 10 channels: accounts CRUD, destinations CRUD, launch:account, launch:status
+- **Project scaffold** — Vite + React + Tailwind CSS, Electron with hot-reloading renderer
+- **Electron main process** — BrowserWindow, system tray, close-to-tray, CSP for production
+- **Preload context bridge** — `window.api` exposes all IPC channels
+- **Credential store** — electron-store with AES-256 encryption, full CRUD, passwords masked
 - **Build config** — electron-builder.yml for NSIS per-user Windows installer
-- **Placeholder tray icon** — 16x16 indigo square
 
 ---
 
@@ -35,9 +46,4 @@ All notable changes to CoPilots Launchpad.
 
 ### Design & Planning Complete
 
-- **Full design spec** — `docs/CoPilots_Launchpad_Spec.md`: data model (accounts, destinations), Edge profile management (sandboxed `--user-data-dir`), Playwright login flow (3-scenario Promise.race detection), application architecture (Electron + React + playwright-core), UI design (dark theme, DM Sans + JetBrains Mono), system tray behavior, build/packaging (electron-builder NSIS), security considerations, V2 roadmap
-- **Working UI prototype** — `docs/CopilotLauncher.jsx`: both screens (Launcher, Settings), both modals (Account, Destination), search/filter, collapsible groups with colored headers, launch animation, status indicators, full visual design implemented
-- **Product overview** — `docs/CoPilots_Launchpad_Product_Overview.pdf`: polished deck with screenshots
-- **Architecture decisions** — Electron main/renderer split, electron-store with AES-256 for credentials, IPC bridge for secure communication, playwright-core with `channel: 'msedge'`, detach-after-login pattern, per-user install (no admin rights)
-- **Admin rights analysis** — confirmed zero admin requirements across install, runtime, and all file operations
-- **Project docs** — CLAUDE.md, README.md, CURRENT_STATE.md, NOW.md, CHANGELOG.md, .gitignore
+- Full design spec, working UI prototype, product overview PDF, architecture decisions, admin rights analysis

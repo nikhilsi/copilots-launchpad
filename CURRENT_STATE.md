@@ -6,26 +6,26 @@
 **What's Next**: See NOW.md
 ---
 
-**Phase**: Phase 2 Complete | **Status**: Full React UI with dark/light/system theme, wired to IPC
+**Phase**: Phase 3 Complete | **Status**: Playwright login flow wired, ready for build & Windows testing
 
 ---
 
 ## What's Done
 
+### Phase 3: Playwright Integration (March 6, 2026)
+- **Login flow** (`electron/launcher.js`) — Playwright launches browser with `--user-data-dir` per account, detects login scenario via `Promise.race`, fills credentials, detaches after login
+- **Scenario detection** — Session alive (skip login), Login required (fill credentials), Stale session (click "Use another account" then fill)
+- **Credential flow** — username → Next → password → Sign In → Stay signed in? → Yes, 30s timeout per step
+- **Browser channel** — `channel: 'chrome'` on macOS (dev), `channel: 'msedge'` on Windows (prod)
+- **Profile management** — Auto-create profile dir on first launch, delete on account removal
+- **Status updates** — `launch:status` IPC events flow from launcher → main → renderer in real-time
+- **Launch IPC handler** — Fetches account with password from store, resolves destination, runs launch with status callbacks
+
 ### Phase 2: React UI (March 6, 2026)
-- **Component structure** — Ported prototype into proper components: AccountCard, GroupSection, SearchBar, StatusIndicator, AccountModal, DestModal, ThemeToggle, Icons
-- **IPC hooks** — `useAccounts.js` and `useDestinations.js` wire React state to electron-store via IPC
-- **Launcher page** — Account cards grouped by group, collapsible sections, search/filter across label/username/group/destination, empty states, launch button with status dot
-- **Settings page** — Two tabs (Accounts, Destinations), table layout with edit/delete, Add Account/Destination buttons, modals for CRUD
-- **Dark/light/system theme** — Three-way toggle (sun/moon/monitor), persisted in electron-store, respects system preference, Tailwind `dark:` class strategy
-- **Visual design** — DM Sans + JetBrains Mono fonts, indigo accent, card hover lift, launch pulse animation, proper light and dark mode colors throughout
+- Full component structure, IPC hooks, Launcher + Settings pages, modals, dark/light/system theme
 
 ### Phase 1: Scaffold & Electron Shell (March 6, 2026)
-- **Project scaffold** — Vite + React + Tailwind CSS, `npm run dev` launches Electron with hot-reloading React renderer
-- **Electron main process** — BrowserWindow, system tray, close-to-tray, CSP for production
-- **Preload / context bridge** — All IPC channels exposed via `window.api`
-- **Credential store** — electron-store with AES-256 encryption, full CRUD, passwords never in renderer
-- **IPC handlers** — accounts CRUD, destinations CRUD, theme get/set, launch:account, launch:status
+- Vite + React + Tailwind, Electron main process, system tray, credential store, all IPC handlers
 
 ### Design & Planning (March 6, 2026)
 - Full design spec, working UI prototype, product overview PDF
@@ -34,9 +34,8 @@
 
 ## Not Yet Built
 
-- **Playwright login flow** — scenario detection, credential fill, detach
-- **Build/packaging** — test Windows installer
-- **Windows testing** — Edge integration, installer validation
+- **Build/packaging** — `npm run build` + `npm run dist` → Windows .exe installer
+- **Windows testing** — Edge integration, installer validation, real M365 accounts
 
 ---
 
