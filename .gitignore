@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Build output
+build/
+dist/
+out/
+
+# Electron-builder output
+*.exe
+*.msi
+*.dmg
+*.AppImage
+*.snap
+
+# Edge profile directories (runtime, contain session cookies/auth tokens)
+profiles/
+
+# Electron store (encrypted credentials — NEVER commit)
+config.json
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Playwright
+playwright-report/
+test-results/
+
+# Misc
+*.tgz
+.cache/
