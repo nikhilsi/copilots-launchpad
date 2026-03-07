@@ -1,5 +1,6 @@
 {
   "name": "copilots-launchpad",
+  "productName": "CoPilots Launchpad",
   "version": "0.1.0",
   "description": "One-click launcher for Microsoft 365 test accounts",
   "author": "CoPilots Launchpad",
