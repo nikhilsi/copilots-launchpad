@@ -4,6 +4,18 @@ All notable changes to CoPilots Launchpad.
 
 ---
 
+## [0.7.0] - 2026-03-06
+
+### Bug Fixes & Polish
+
+- **Launcher fix** — use `launchPersistentContext` instead of `--user-data-dir` arg (Playwright API requirement)
+- **Error UX** — strip IPC prefix from user-facing errors, clear error banner on tab switch
+- **Launch logging** — main process logs launch status for debugging
+- **App icon** — indigo rocket icon replacing placeholder (ico, png, tray sizes)
+- **macOS testing passed** — Chrome + Edge launch, profile isolation, browser switching, dark mode, search, delete cleanup, tray minimize, data persistence
+
+---
+
 ## [0.6.0] - 2026-03-06
 
 ### Cross-Platform & Browser Choice

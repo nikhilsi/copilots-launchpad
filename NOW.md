@@ -17,13 +17,16 @@
 - [x] Configurable browser (Chrome/Edge) with platform-aware defaults
 - [x] Spec doc updated to v1.1
 
-## Testing — NEXT
+## macOS Testing — DONE
 
-- [ ] Test on macOS with Chrome (dev environment)
-- [ ] Test browser switching (Chrome ↔ Edge) in Settings → General
+- [x] Chrome + Edge launch, profile isolation, browser switching
+- [x] Multiple accounts, search, dark mode, delete cleanup, tray, persistence
+
+## Windows Testing — NEXT
+
+- [ ] Rebuild Windows .exe with latest fixes (`npm run build && npm run dist:win`)
 - [ ] Test installer on Windows 11 (no admin rights, Start Menu entry, tray icon)
 - [ ] Test with real M365 test accounts (Copilot Chat, Admin Center destinations)
-- [ ] Test simultaneous sessions (2-3 accounts open side by side)
 - [ ] Deliver installer to user
 
 ---

@@ -6,7 +6,7 @@
 **What's Next**: See NOW.md
 ---
 
-**Phase**: Phase 4 Complete | **Status**: Cross-platform builds ready, needs testing
+**Phase**: Phase 4 Complete | **Status**: macOS tested, Windows testing next
 
 ---
 
@@ -42,15 +42,25 @@
 
 ---
 
-## Needs Testing
+## macOS Testing — PASSED
 
-- Install .exe on Windows 11 (per-user, no admin)
-- Test Edge integration (`channel: 'msedge'`)
-- Test Chrome integration on macOS (`channel: 'chrome'`)
-- Test browser switching in Settings → General
-- Test with real M365 test accounts
-- Test simultaneous sessions (2-3 accounts side by side)
-- Validate tray icon, Start Menu entry
+- [x] Chrome launch + profile isolation
+- [x] Edge launch + profile isolation
+- [x] Browser switching (Chrome ↔ Edge) in Settings → General
+- [x] Multiple simultaneous accounts (separate browser windows)
+- [x] Status dot (yellow on launch)
+- [x] Search/filter on Launcher
+- [x] Dark/light/system theme
+- [x] Delete account (profile cleanup across both browsers)
+- [x] Close-to-tray behavior
+- [x] Data persistence after app restart
+
+## Windows Testing — NEXT
+
+- [ ] Install .exe on Windows 11 (per-user, no admin)
+- [ ] Test Edge integration (`channel: 'msedge'`)
+- [ ] Test with real M365 test accounts
+- [ ] Validate tray icon, Start Menu entry
 
 ---
 
