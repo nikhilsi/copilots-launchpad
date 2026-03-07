@@ -4,6 +4,18 @@ All notable changes to CoPilots Launchpad.
 
 ---
 
+## [0.5.0] - 2026-03-06
+
+### Phase 4: Build & Ship (partial)
+
+- **Production build** — `npm run build` produces optimized React bundle (170KB JS, 18KB CSS)
+- **Windows installer** — `npm run dist:win` cross-compiles 80MB NSIS .exe from macOS via Wine
+- **App icon** — placeholder indigo .ico for installer and taskbar
+- **Dist scripts** — `dist:win` and `dist:mac` added to package.json
+- **Remaining** — Windows 11 testing: installer, Edge integration, real M365 accounts, simultaneous sessions
+
+---
+
 ## [0.4.0] - 2026-03-06
 
 ### Phase 3: Playwright Integration

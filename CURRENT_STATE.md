@@ -6,53 +6,47 @@
 **What's Next**: See NOW.md
 ---
 
-**Phase**: Phase 3 Complete | **Status**: Playwright login flow wired, ready for build & Windows testing
+**Phase**: Phase 4 In Progress | **Status**: Windows .exe built, needs testing on Windows 11
 
 ---
 
 ## What's Done
 
+### Phase 4: Build & Ship (March 6, 2026)
+- **Production build** — `npm run build` produces optimized React bundle (170KB JS, 18KB CSS)
+- **Windows installer** — `npm run dist:win` cross-compiles 80MB NSIS .exe from macOS
+- **App icon** — placeholder indigo .ico for installer and taskbar
+- **Dist scripts** — `dist:win` and `dist:mac` for platform-specific builds
+
 ### Phase 3: Playwright Integration (March 6, 2026)
-- **Login flow** (`electron/launcher.js`) — Playwright launches browser with `--user-data-dir` per account, detects login scenario via `Promise.race`, fills credentials, detaches after login
-- **Scenario detection** — Session alive (skip login), Login required (fill credentials), Stale session (click "Use another account" then fill)
-- **Credential flow** — username → Next → password → Sign In → Stay signed in? → Yes, 30s timeout per step
-- **Browser channel** — `channel: 'chrome'` on macOS (dev), `channel: 'msedge'` on Windows (prod)
-- **Profile management** — Auto-create profile dir on first launch, delete on account removal
-- **Status updates** — `launch:status` IPC events flow from launcher → main → renderer in real-time
-- **Launch IPC handler** — Fetches account with password from store, resolves destination, runs launch with status callbacks
+- Login flow with 3-scenario detection, credential fill, 30s timeouts, detach after login
+- Profile management (auto-create/delete), real-time status updates via IPC
 
 ### Phase 2: React UI (March 6, 2026)
 - Full component structure, IPC hooks, Launcher + Settings pages, modals, dark/light/system theme
 
 ### Phase 1: Scaffold & Electron Shell (March 6, 2026)
-- Vite + React + Tailwind, Electron main process, system tray, credential store, all IPC handlers
+- Vite + React + Tailwind, Electron main process, system tray, credential store
 
 ### Design & Planning (March 6, 2026)
 - Full design spec, working UI prototype, product overview PDF
 
 ---
 
-## Not Yet Built
+## Still Needs Windows Testing
 
-- **Build/packaging** — `npm run build` + `npm run dist` → Windows .exe installer
-- **Windows testing** — Edge integration, installer validation, real M365 accounts
-
----
-
-## Key Design References
-
-| Document | Purpose |
-|----------|---------|
-| `docs/CoPilots_Launchpad_Spec.md` | Source of truth — full spec |
-| `docs/CopilotLauncher.jsx` | Visual reference — working prototype |
-| `docs/CoPilots_Launchpad_Product_Overview.pdf` | Product overview deck |
+- Install .exe on Windows 11 (per-user, no admin)
+- Test Edge integration (`channel: 'msedge'`)
+- Test with real M365 test accounts
+- Test simultaneous sessions (2-3 accounts side by side)
+- Validate tray icon, Start Menu entry
 
 ---
 
 ## Key Config
 
 - **Target platform:** Windows 11 with Edge pre-installed
-- **Dev platform:** macOS (Electron + React are cross-platform; Playwright uses `channel: 'chrome'` locally, `channel: 'msedge'` on Windows)
+- **Dev platform:** macOS
+- **Installer:** `dist/CoPilots Launchpad Setup 0.1.0.exe` (80MB)
 - **Storage:** `%APPDATA%/copilots-launchpad/config.json` (encrypted)
 - **Profiles:** `%APPDATA%/copilots-launchpad/profiles/<account-id>/`
-- **Install location:** `%LOCALAPPDATA%` (per-user, no admin)

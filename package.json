@@ -2,11 +2,14 @@
   "name": "copilots-launchpad",
   "version": "0.1.0",
   "description": "One-click launcher for Microsoft 365 test accounts",
+  "author": "CoPilots Launchpad",
   "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently \"vite --config vite.config.mjs\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "vite build --config vite.config.mjs",
     "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac",
     "lint": "eslint src/"
   },
   "dependencies": {
