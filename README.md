@@ -78,6 +78,12 @@ One app. One click. The browser opens, logs in, and lands on the right page.
 
 ---
 
+## User Guide
+
+New to the app? See the **[User Guide](docs/user-guide.md)** for step-by-step setup and onboarding instructions.
+
+---
+
 ## Quick Start
 
 ### Prerequisites

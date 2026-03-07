@@ -12,6 +12,17 @@ const store = new Store({
   },
 });
 
+// Seed default destination on first run
+if (store.get('destinations', []).length === 0) {
+  store.set('destinations', [
+    {
+      id: `dest-${crypto.randomUUID()}`,
+      label: 'Copilot Chat',
+      url: 'https://m365.cloud.microsoft/chat',
+    },
+  ]);
+}
+
 /**
  * Encrypt a password using Electron's safeStorage (OS keychain-backed).
  * Falls back to plaintext only if safeStorage is unavailable (rare).
