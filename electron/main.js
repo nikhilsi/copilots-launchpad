@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, session } = require('electron');
 const path = require('path');
 const store = require('./store');
 
@@ -122,9 +122,32 @@ ipcMain.handle('destinations:delete', (_event, { id }) => {
   return store.deleteDestination(id);
 });
 
+// Theme
+ipcMain.handle('theme:get', () => {
+  return store.getTheme();
+});
+
+ipcMain.handle('theme:set', (_event, theme) => {
+  return store.setTheme(theme);
+});
+
 // --- App Lifecycle ---
 
 app.whenReady().then(() => {
+  // Set CSP for production (dev needs relaxed policy for Vite HMR)
+  if (!isDev) {
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': [
+            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'",
+          ],
+        },
+      });
+    });
+  }
+
   createWindow();
   createTray();
 });

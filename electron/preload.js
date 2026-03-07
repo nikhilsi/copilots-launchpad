@@ -13,6 +13,10 @@ contextBridge.exposeInMainWorld('api', {
   updateDestination: (dest) => ipcRenderer.invoke('destinations:update', dest),
   deleteDestination: (id) => ipcRenderer.invoke('destinations:delete', { id }),
 
+  // Theme
+  getTheme: () => ipcRenderer.invoke('theme:get'),
+  setTheme: (theme) => ipcRenderer.invoke('theme:set', theme),
+
   // Launch
   launchAccount: (id) => ipcRenderer.invoke('launch:account', { id }),
 

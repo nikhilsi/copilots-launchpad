@@ -4,6 +4,19 @@ All notable changes to CoPilots Launchpad.
 
 ---
 
+## [0.3.0] - 2026-03-06
+
+### Phase 2: React UI
+
+- **Component structure** — AccountCard, GroupSection, SearchBar, StatusIndicator, AccountModal, DestModal, ThemeToggle, Icons — all ported from prototype into proper files
+- **IPC hooks** — `useAccounts.js` and `useDestinations.js` connect React to electron-store via IPC
+- **Launcher page** — account cards in responsive grid, grouped with collapsible colored headers, search/filter, empty states, launch trigger with status dots
+- **Settings page** — Accounts and Destinations tabs, table layout with inline edit/delete, Add buttons, modals for full CRUD
+- **Dark/light/system theme** — three-way toggle persisted in electron-store, respects OS preference via `prefers-color-scheme`, Tailwind `darkMode: 'class'` strategy
+- **Visual polish** — DM Sans + JetBrains Mono fonts, indigo accent (#6366F1), card hover lift, launch pulse animation, proper light and dark colors on all surfaces, modals, inputs, and tables
+
+---
+
 ## [0.2.0] - 2026-03-06
 
 ### Phase 1: Scaffold & Electron Shell

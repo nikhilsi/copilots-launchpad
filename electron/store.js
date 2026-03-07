@@ -7,6 +7,7 @@ const store = new Store({
   defaults: {
     accounts: [],
     destinations: [],
+    theme: 'system',
   },
 });
 
@@ -92,6 +93,17 @@ function deleteDestination(id) {
   return { success: true };
 }
 
+// --- Theme ---
+
+function getTheme() {
+  return store.get('theme', 'system');
+}
+
+function setTheme(theme) {
+  store.set('theme', theme);
+  return theme;
+}
+
 module.exports = {
   getAccounts,
   getAccountWithPassword,
@@ -102,4 +114,6 @@ module.exports = {
   addDestination,
   updateDestination,
   deleteDestination,
+  getTheme,
+  setTheme,
 };

@@ -28,26 +28,27 @@
 
 ---
 
-## Phase 2: React UI — CURRENT
+## Phase 2: React UI — DONE
 
 ### 2a: Port Prototype
-- [ ] Port `docs/CopilotLauncher.jsx` to proper component structure (see CLAUDE.md for file layout)
-- [ ] Wire components to IPC hooks (`useAccounts.js`, `useDestinations.js`)
-- [ ] Launcher view: account cards, grouped by group, collapsible, search/filter
-- [ ] Settings view: Accounts tab (table + CRUD), Destinations tab (table + CRUD)
-- [ ] Modals: AccountModal (add/edit), DestModal (add/edit)
-- [ ] Delete destination guard — cannot delete if assigned to accounts
+- [x] Port `docs/CopilotLauncher.jsx` to proper component structure (see CLAUDE.md for file layout)
+- [x] Wire components to IPC hooks (`useAccounts.js`, `useDestinations.js`)
+- [x] Launcher view: account cards, grouped by group, collapsible, search/filter
+- [x] Settings view: Accounts tab (table + CRUD), Destinations tab (table + CRUD)
+- [x] Modals: AccountModal (add/edit), DestModal (add/edit)
+- [x] Delete destination guard — cannot delete if assigned to accounts
 
 ### 2b: Visual Polish
-- [ ] Dark theme (background #0C0F1A, indigo accent #6366F1)
-- [ ] Fonts: DM Sans (UI) + JetBrains Mono (usernames, URLs)
-- [ ] Card hover lift, launch pulse animation, status dot transitions
-- [ ] Empty states (no accounts, no search results)
-- [ ] First launch → auto-navigate to Settings
+- [x] Dark theme (background #0C0F1A, indigo accent #6366F1)
+- [x] Fonts: DM Sans (UI) + JetBrains Mono (usernames, URLs)
+- [x] Card hover lift, launch pulse animation, status dot transitions
+- [x] Empty states (no accounts, no search results)
+- [x] First launch → auto-navigate to Settings
+- [x] Dark/light/system theme toggle (persisted in store)
 
 ---
 
-## Phase 3: Playwright Integration
+## Phase 3: Playwright Integration — CURRENT
 
 ### 3a: Login Flow
 - [ ] `electron/launcher.js` — Playwright launch with `channel: 'msedge'` and `--user-data-dir`
