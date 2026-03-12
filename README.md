@@ -166,6 +166,7 @@ Output goes to `dist/`. The Windows build can be cross-compiled from macOS.
 | Browser automation | playwright-core |
 | Credential storage | Electron safeStorage (OS keychain) |
 | Data persistence | electron-store |
+| Code signing (Windows) | Azure Trusted Signing |
 | Packaging | electron-builder |
 | Platforms | macOS, Windows |
 | Browsers | Google Chrome, Microsoft Edge |
@@ -205,6 +206,7 @@ copilots-launchpad/
 | Content Security Policy | Enforced in production: `script-src 'self'`, `object-src 'none'`, `frame-ancestors 'none'` |
 | Electron hardening | `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true` |
 | Destination URLs | Must be `http://` or `https://` (blocks `file://`, `javascript:`, etc.) |
+| Code signing | Windows .exe signed via Azure Trusted Signing (Public Trust certificate, verified publisher) |
 | Admin rights | Not required — per-user install, user-writable paths only |
 
 **Important:** This app is designed for **test environments with MFA disabled**. It does not handle MFA prompts.

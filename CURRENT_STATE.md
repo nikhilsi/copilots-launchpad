@@ -1,16 +1,32 @@
 # Current State
 
 ---
-**Last Updated**: March 6, 2026
+**Last Updated**: March 11, 2026
 **Purpose**: Project context for new Claude Code sessions
 **What's Next**: See NOW.md
 ---
 
-**Phase**: Phase 4 Complete + Security & CSV | **Status**: macOS tested, Windows testing next
+**Phase**: Phase 4 Complete + Security & CSV + Code Signing | **Status**: Signed Windows build pending verification
 
 ---
 
 ## What's Done
+
+### Windows Code Signing — Azure Trusted Signing (March 11, 2026)
+- **Azure Artifact Signing** — account `copilotslaunchpad` with Public Trust certificate profile `copilots-launchpad`
+- **Verified publisher** — identity verified as Urmila Singhal (individual, Public Trust)
+- **electron-builder v26** — upgraded from v24.13.3 to v26.0.1 for native `azureSignOptions` support
+- **GitHub Actions integration** — release workflow passes `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` to Windows build step
+- **Config** — `electron-builder.yml` has `azureSignOptions` under `win:` (endpoint, cert profile, account name, publisher)
+- **Funded** — $9.99/mo via Urmila's MSFT FTE Visual Studio Enterprise $150/mo Azure credits
+
+### Bug Fixes & Polish (March 11, 2026)
+- **Account picker fix (issue #3)** — robust multi-selector approach in `launcher.js` for Microsoft "Use another account" button
+- **Sample CSV template (issue #1)** — `docs/sample-accounts.csv`
+- **Default destination** — Copilot Chat seeded on first run in `store.js`
+- **User guide** — `docs/user-guide.md` with full onboarding walkthrough
+- **Screenshots** — 9 screenshots in `docs/screenshots/` added to README
+- **App name fix** — `productName` in package.json for macOS menu bar
 
 ### CSV Import/Export (March 6, 2026)
 - **CSV import** — file picker, custom CSV parser (handles quoted fields, BOM), import preview screen with defaults bar (destination, group, color), conflict detection by username, selective import via checkboxes
@@ -76,9 +92,11 @@
 - [x] CSV export (with and without passwords)
 - [x] CSV import (preview, defaults, conflict detection)
 
-## Windows Testing — NEXT
+## Windows Testing — IN PROGRESS
 
-- [ ] Install .exe on Windows 11 (per-user, no admin)
+- [ ] Tag v0.8.4 to trigger signed build
+- [ ] Verify code signing (no "unverified publisher" warning)
+- [ ] Close GitHub issue #2 once signing confirmed
 - [ ] Test Edge integration (`channel: 'msedge'`)
 - [ ] Test with real M365 test accounts
 - [ ] Validate tray icon, Start Menu entry

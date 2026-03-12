@@ -3,6 +3,11 @@ productName: CoPilots Launchpad
 win:
   target: nsis
   icon: assets/icon.ico
+  azureSignOptions:
+    endpoint: "https://wus.codesigning.azure.net/"
+    certificateProfileName: "copilots-launchpad"
+    codeSigningAccountName: "copilotslaunchpad"
+    publisherName: "Urmila Singhal"
 mac:
   target: dmg
   icon: assets/icon-512.png

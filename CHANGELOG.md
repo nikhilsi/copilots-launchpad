@@ -4,6 +4,45 @@ All notable changes to CoPilots Launchpad.
 
 ---
 
+## [0.8.4] - 2026-03-11
+
+### Windows Code Signing
+
+- **Azure Trusted Signing** — Windows .exe is now signed via Azure Artifact Signing (Public Trust certificate, verified publisher: Urmila Singhal)
+- **electron-builder v26** — upgraded from v24.13.3 to v26.0.1 for native `azureSignOptions` support
+- **GitHub Actions** — release workflow passes Azure credentials to Windows build step for automated signing
+- **SmartScreen** — signed .exe should no longer trigger "unverified publisher" warnings
+
+---
+
+## [0.8.3] - 2026-03-11
+
+### Bug Fixes (GitHub Issues)
+
+- **Account picker fix (issue #3)** — robust multi-selector approach for Microsoft "Use another account" button; handles `#otherTile`, `#otherTileText`, `[data-test-id="otherTile"]`, and text-based selectors
+- **Sample CSV template (issue #1)** — added `docs/sample-accounts.csv` with example accounts and all columns
+
+---
+
+## [0.8.2] - 2026-03-11
+
+### Documentation & UX
+
+- **User guide** — comprehensive onboarding doc at `docs/user-guide.md` with step-by-step setup, CSV import walkthrough, troubleshooting
+- **Default destination** — Copilot Chat (`https://m365.cloud.microsoft/chat`) seeded on first run so new users have a destination ready
+- **README** — added screenshots section, user guide link, sample CSV link
+- **Screenshots** — 9 screenshots added to `docs/screenshots/` (launcher, settings, modals, search)
+
+---
+
+## [0.8.1] - 2026-03-11
+
+### Fixes
+
+- **App name in menu bar** — added `productName` to package.json so macOS menu bar shows "CoPilots Launchpad" instead of "Electron" in packaged builds
+
+---
+
 ## [0.8.0] - 2026-03-06
 
 ### CSV Import/Export

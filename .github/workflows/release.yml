@@ -36,6 +36,10 @@ jobs:
 
       - name: Build installer
         run: npx electron-builder --${{ matrix.platform }} --publish never
+        env:
+          AZURE_TENANT_ID: ${{ matrix.platform == 'win' && secrets.AZURE_TENANT_ID || '' }}
+          AZURE_CLIENT_ID: ${{ matrix.platform == 'win' && secrets.AZURE_CLIENT_ID || '' }}
+          AZURE_CLIENT_SECRET: ${{ matrix.platform == 'win' && secrets.AZURE_CLIENT_SECRET || '' }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

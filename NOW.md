@@ -1,7 +1,7 @@
 # NOW - What's Next
 
 ---
-**Last Updated**: March 6, 2026
+**Last Updated**: March 11, 2026
 **Purpose**: What to work on next
 **Context**: See CURRENT_STATE.md for what's built, CHANGELOG.md for history
 ---
@@ -38,16 +38,38 @@
 - [x] Release workflow on `v*` tag push (macOS .dmg + Windows .exe)
 - [x] Automated GitHub Release with artifacts
 
+## Bug Fixes & Documentation — DONE
+
+- [x] Account picker login fix (issue #3) — multi-selector approach
+- [x] Sample CSV template (issue #1)
+- [x] Default destination (Copilot Chat) seeded on first run
+- [x] User guide (`docs/user-guide.md`)
+- [x] Screenshots in README
+- [x] App name fix (productName in package.json)
+
+## Windows Code Signing — DONE (pending verification)
+
+- [x] Azure Trusted Signing account + certificate profile
+- [x] Identity validation (Urmila Singhal, Public Trust)
+- [x] App registration with GitHub OIDC federated credential + client secret
+- [x] IAM role assignments (Certificate Profile Signer + Identity Verifier)
+- [x] GitHub secrets set (AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET)
+- [x] electron-builder upgraded to v26.0.1
+- [x] `azureSignOptions` added to electron-builder.yml
+- [x] Release workflow updated to pass Azure env vars on Windows build
+
 ## macOS Testing — DONE
 
 - [x] Chrome + Edge launch, profile isolation, browser switching
 - [x] Multiple accounts, search, dark mode, delete cleanup, tray, persistence
 - [x] CSV import and export
 
-## Windows Testing — NEXT
+## Verify Signed Build — NEXT
 
-- [ ] Tag and push to trigger release build
-- [ ] Download Windows .exe from GitHub Release
+- [ ] Commit, push, tag v0.8.4
+- [ ] Verify GitHub Actions workflow completes (especially Windows signing)
+- [ ] Download Windows .exe and confirm no "unverified publisher" warning
+- [ ] Close GitHub issue #2
 - [ ] Test installer on Windows 11 (no admin rights, Start Menu entry, tray icon)
 - [ ] Test with real M365 test accounts (Copilot Chat, Admin Center destinations)
 

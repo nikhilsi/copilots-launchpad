@@ -26,7 +26,7 @@ CoPilots Launchpad is a desktop app that lets you launch multiple Microsoft 365 
 1. Go to https://github.com/nikhilsi/copilots-launchpad/releases/latest
 2. Download the `.exe` file
 3. Run the installer -- Next, Next, Finish. No admin rights needed.
-4. **Windows SmartScreen warning:** You may see "Windows protected your PC" or "Unverified publisher." This is expected for community-built apps that aren't signed with a Microsoft-verified certificate. Click **"More info"** then **"Run anyway"** to proceed. The app is open source -- you can inspect the full source code in the repo.
+4. **Windows SmartScreen:** The installer is signed with a Microsoft-verified certificate (Azure Trusted Signing). If you still see a SmartScreen prompt on early releases, click **"More info"** then **"Run anyway"** -- reputation builds over time with signed downloads.
 
 ---
 
@@ -170,7 +170,7 @@ To export your accounts:
 
 | Issue | Solution |
 |-------|----------|
-| Windows says "Unverified publisher" | This is expected -- click "More info" then "Run anyway." The app is open source and safe to run. |
+| Windows says "Unverified publisher" | The app is signed, but SmartScreen reputation builds over time. Click "More info" then "Run anyway." |
 | macOS says "unidentified developer" | Right-click the app > Open (first time only) |
 | macOS asks for Automation permission | System Settings > Privacy & Security > Automation > allow the app |
 | Browser doesn't open | Make sure Chrome or Edge is installed |
