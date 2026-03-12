@@ -1,0 +1,5 @@
+label,username,password,destination,group,color,notes
+Test Premium,alice@contoso.onmicrosoft.com,P@ssword1,Copilot Chat,Test,#10B981,Full E5 license
+Test Basic,bob@contoso.onmicrosoft.com,P@ssword2,Copilot Chat,Test,#10B981,Basic license
+Global Admin,admin@contoso.onmicrosoft.com,P@ssword3,Copilot Chat,Admins,#6366F1,Tenant admin
+Helpdesk User,helpdesk@contoso.onmicrosoft.com,P@ssword4,Copilot Chat,Admins,#6366F1,Helpdesk role

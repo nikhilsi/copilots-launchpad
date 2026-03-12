@@ -78,8 +78,9 @@ async function launchAccount(account, destination, channel, onStatus) {
     if (scenario === 'login-required') {
       await fillCredentials(page, account);
     } else if (scenario === 'stale-session') {
-      // Click "Use another account" then fill credentials
-      await page.click('text=Use another account', { timeout: STEP_TIMEOUT });
+      // Account picker is showing — click "Use another account" to get to the login form.
+      // Microsoft uses several variations of this button/link.
+      await clickUseAnotherAccount(page);
       await fillCredentials(page, account);
     }
     // scenario === 'session-alive' means we're already logged in — nothing to do
@@ -104,7 +105,7 @@ async function launchAccount(account, destination, channel, onStatus) {
  *
  * A — Session alive: destination content is visible
  * B — Login required: username input is visible
- * C — Stale session: account picker is visible
+ * C — Stale session: account picker is visible (shows existing accounts + "Use another account")
  */
 async function detectScenario(page) {
   const result = await Promise.race([
@@ -116,12 +117,55 @@ async function detectScenario(page) {
       .then(() => 'login-required')
       .catch(() => null),
 
-    page.waitForSelector('#otherTileText, [data-test-id="otherTile"], text=Use another account', { timeout: STEP_TIMEOUT })
+    // Account picker — Microsoft uses many variants of this screen:
+    // - #otherTileText ("Use another account" text)
+    // - .table[data-test-id="accountList"] (account list container)
+    // - #tilesHolder (tile container with existing accounts)
+    // - #otherTile (the "Use another account" tile itself)
+    // - Text match as fallback
+    page.waitForSelector('#otherTileText, #otherTile, [data-test-id="otherTile"], #tilesHolder, text=Use another account, text=Sign in with a different account', { timeout: STEP_TIMEOUT })
       .then(() => 'stale-session')
       .catch(() => null),
   ]);
 
   return result || 'login-required';
+}
+
+/**
+ * Click "Use another account" on the Microsoft account picker.
+ * Handles multiple layout variants Microsoft uses for this screen.
+ */
+async function clickUseAnotherAccount(page) {
+  // Try multiple selectors — Microsoft changes these across tenants and updates
+  const selectors = [
+    '#otherTile',
+    '#otherTileText',
+    '[data-test-id="otherTile"]',
+    'text=Use another account',
+    'text=Sign in with a different account',
+  ];
+
+  for (const selector of selectors) {
+    try {
+      const el = await page.$(selector);
+      if (el) {
+        await el.click();
+        // Wait for the login form to appear after clicking
+        await page.waitForSelector('input[name="loginfmt"]', { timeout: STEP_TIMEOUT });
+        return;
+      }
+    } catch {
+      // Try next selector
+    }
+  }
+
+  // Last resort: if nothing matched, the page might have navigated already
+  // Check if login form appeared on its own
+  try {
+    await page.waitForSelector('input[name="loginfmt"]', { timeout: 5000 });
+  } catch {
+    throw new Error('Could not find "Use another account" button on the account picker screen');
+  }
 }
 
 /**
