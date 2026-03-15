@@ -4,6 +4,7 @@ publish:
   provider: github
   owner: nikhilsi
   repo: copilots-launchpad
+  releaseType: release
 win:
   target: nsis
   icon: assets/icon.ico
