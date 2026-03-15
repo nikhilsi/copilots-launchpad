@@ -1,16 +1,24 @@
 # Current State
 
 ---
-**Last Updated**: March 11, 2026
+**Last Updated**: March 15, 2026
 **Purpose**: Project context for new Claude Code sessions
 **What's Next**: See NOW.md
 ---
 
-**Phase**: Phase 4 Complete + Security & CSV + Code Signing | **Status**: Signed Windows build pending verification
+**Phase**: Phase 4 Complete + Auto-Update + Help | **Status**: v0.9.0 ready for release
 
 ---
 
 ## What's Done
+
+### Auto-Update, Login Fix, Help & Logging (March 15, 2026)
+- **Auto-updater** — `electron-updater` checks GitHub Releases on launch, in-app banner for download/install, tray menu "Check for Updates..."
+- **Login flow overhaul** — sequential detection replaces broken `Promise.race`; handles sign-in button, account picker tile click, password-only, URL-based fallback
+- **Help page** — dedicated view via ? icon on launcher (quick start, CSV guide, features, troubleshooting)
+- **Tooltips** — hover hints on all form fields in modals
+- **Send Logs** — Settings > General > Troubleshooting: emails recent logs for debugging
+- **Logger** — in-memory ring buffer (200 entries) with timestamps
 
 ### Windows Code Signing — Azure Trusted Signing (March 11, 2026)
 - **Azure Artifact Signing** — account `copilotslaunchpad` with Public Trust certificate profile `copilots-launchpad`
@@ -94,9 +102,10 @@
 
 ## Windows Testing — IN PROGRESS
 
-- [ ] Tag v0.8.4 to trigger signed build
-- [ ] Verify code signing (no "unverified publisher" warning)
-- [ ] Close GitHub issue #2 once signing confirmed
+- [x] Verify code signing (no "unverified publisher" warning) — **confirmed v0.8.4**
+- [x] GitHub issue #2 closed
+- [ ] Tag v0.9.0 — auto-updater, login fix, help tab, send logs
+- [ ] Urmila tests login flow with account picker (issue #3 retest)
 - [ ] Test Edge integration (`channel: 'msedge'`)
 - [ ] Test with real M365 test accounts
 - [ ] Validate tray icon, Start Menu entry

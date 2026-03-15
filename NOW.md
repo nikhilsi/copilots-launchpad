@@ -1,7 +1,7 @@
 # NOW - What's Next
 
 ---
-**Last Updated**: March 11, 2026
+**Last Updated**: March 15, 2026
 **Purpose**: What to work on next
 **Context**: See CURRENT_STATE.md for what's built, CHANGELOG.md for history
 ---
@@ -64,12 +64,22 @@
 - [x] Multiple accounts, search, dark mode, delete cleanup, tray, persistence
 - [x] CSV import and export
 
-## Verify Signed Build — NEXT
+## Auto-Update, Login Fix, Help — DONE
 
-- [ ] Commit, push, tag v0.8.4
-- [ ] Verify GitHub Actions workflow completes (especially Windows signing)
-- [ ] Download Windows .exe and confirm no "unverified publisher" warning
-- [ ] Close GitHub issue #2
+- [x] Auto-updater (electron-updater, in-app banner, tray menu)
+- [x] Login flow overhaul (sequential detection, sign-in button, account tile click, password-only)
+- [x] Help tab in Settings (quick start, CSV guide, troubleshooting)
+- [x] Tooltips on form fields
+- [x] Send Logs via email (Settings > General > Troubleshooting)
+- [x] Logger module (ring buffer, timestamps)
+- [x] Signed build verified (v0.8.4) — issue #2 closed
+
+## Release v0.9.0 — NEXT
+
+- [ ] Commit, push, tag v0.9.0
+- [ ] Urmila downloads v0.9.0 .exe (last manual install — auto-update from here on)
+- [ ] Urmila retests account picker login (issue #3)
+- [ ] Test auto-update works (tag v0.9.1 later, verify in-app banner appears)
 - [ ] Test installer on Windows 11 (no admin rights, Start Menu entry, tray icon)
 - [ ] Test with real M365 test accounts (Copilot Chat, Admin Center destinations)
 

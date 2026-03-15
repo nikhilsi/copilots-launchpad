@@ -2,6 +2,8 @@ const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, session } = requir
 const path = require('path');
 const store = require('./store');
 const launcher = require('./launcher');
+const { initUpdater } = require('./updater');
+const logger = require('./logger');
 
 const isDev = !app.isPackaged;
 let mainWindow = null;
@@ -87,6 +89,17 @@ function createTray() {
           mainWindow.show();
           mainWindow.focus();
         }
+      },
+    },
+    {
+      label: 'Check for Updates...',
+      click: () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.show();
+          mainWindow.webContents.send('update:checking');
+        }
+        const { autoUpdater } = require('electron-updater');
+        autoUpdater.checkForUpdates().catch(() => {});
       },
     },
     { type: 'separator' },
@@ -182,7 +195,7 @@ ipcMain.handle('launch:account', async (_event, { id }) => {
   const browserChannel = store.getBrowserChannel();
 
   const sendStatus = ({ id: accId, status, error }) => {
-    console.log(`[launch] ${accId}: ${status}${error ? ` — ${error}` : ''}`);
+    logger.log(`[launch] ${accId}: ${status}${error ? ` — ${error}` : ''}`);
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('launch:status', { id: accId, status, error });
     }
@@ -190,7 +203,7 @@ ipcMain.handle('launch:account', async (_event, { id }) => {
 
   // Run launch in background — status updates go via mainWindow.webContents.send
   launcher.launchAccount(account, destination, browserChannel, sendStatus).catch((err) => {
-    console.error(`[launch] Unhandled error for ${id}:`, err.message);
+    logger.log(`[launch] Unhandled error for ${id}: ${err.message}`);
     sendStatus({ id, status: 'error', error: err.message });
   });
 });
@@ -215,6 +228,11 @@ ipcMain.handle('browser:set', (_event, channel) => {
   return store.setBrowserChannel(channel);
 });
 
+// Logs
+ipcMain.handle('logs:get', () => {
+  return logger.getEntries();
+});
+
 // --- App Lifecycle ---
 
 app.whenReady().then(() => {
@@ -234,6 +252,11 @@ app.whenReady().then(() => {
 
   createWindow();
   createTray();
+
+  // Auto-updater (checks GitHub Releases for newer versions)
+  if (!isDev) {
+    initUpdater(mainWindow);
+  }
 });
 
 app.on('window-all-closed', () => {

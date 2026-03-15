@@ -4,6 +4,33 @@ All notable changes to CoPilots Launchpad.
 
 ---
 
+## [0.9.0] - 2026-03-15
+
+### Auto-Update
+
+- **electron-updater** — app checks GitHub Releases on launch for newer versions
+- **In-app update banner** — shows when an update is available (download → restart & update)
+- **Tray menu** — "Check for Updates..." option added
+- **Publish config** — electron-builder publishes directly to GitHub Releases with `latest.yml` for update detection
+
+### Login Flow Overhaul
+
+- **Sequential detection** — replaced flawed `Promise.race` with priority-based checks (login form → account picker → password → URL check → session alive)
+- **Sign-in button** — new scenario: clicks "Sign in" on destination pages that don't redirect to login automatically
+- **Account tile click** — when account picker shows, clicks the matching account tile directly (skips "Use another account")
+- **Password-only** — handles cases where Microsoft already knows the user and shows only the password prompt
+- **URL-based fallback** — if on a Microsoft login domain, waits for elements instead of falsely declaring session alive
+
+### In-App Help & Logging
+
+- **Help page** — dedicated help view (? icon on launcher) with quick start guide, CSV import reference, features, and troubleshooting
+- **Tooltips** — hover hints on all form fields in account and destination modals
+- **Send Logs** — Settings > General > Troubleshooting: emails recent app logs for debugging
+- **Logger module** — in-memory ring buffer (200 entries) with timestamps, captures all launch events
+- **Stale lock recovery** — auto-removes `SingletonLock` file when a previous browser session wasn't closed cleanly, retries launch
+
+---
+
 ## [0.8.4] - 2026-03-11
 
 ### Windows Code Signing

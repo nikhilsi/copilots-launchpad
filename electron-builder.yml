@@ -1,5 +1,9 @@
 appId: com.copilots-launchpad.app
 productName: CoPilots Launchpad
+publish:
+  provider: github
+  owner: nikhilsi
+  repo: copilots-launchpad
 win:
   target: nsis
   icon: assets/icon.ico

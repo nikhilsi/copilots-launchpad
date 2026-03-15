@@ -32,4 +32,21 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.on('launch:status', handler);
     return () => ipcRenderer.removeListener('launch:status', handler);
   },
+
+  // Logs
+  getLogs: () => ipcRenderer.invoke('logs:get'),
+
+  // Auto-updater
+  checkForUpdates: () => ipcRenderer.invoke('update:check'),
+  downloadUpdate: () => ipcRenderer.invoke('update:download'),
+  installUpdate: () => ipcRenderer.invoke('update:install'),
+  onUpdateStatus: (callback) => {
+    const channels = ['update:available', 'update:not-available', 'update:progress', 'update:downloaded', 'update:error', 'update:checking'];
+    const handlers = channels.map((ch) => {
+      const handler = (_event, data) => callback({ type: ch.replace('update:', ''), ...data });
+      ipcRenderer.on(ch, handler);
+      return () => ipcRenderer.removeListener(ch, handler);
+    });
+    return () => handlers.forEach((cleanup) => cleanup());
+  },
 });

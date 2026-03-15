@@ -155,6 +155,9 @@ To export your accounts:
 - **Dark mode:** Click the theme icons (sun / moon / monitor) in the top right
 - **System tray:** Closing the window doesn't quit the app -- it minimizes to the system tray. Click the tray icon to reopen. Right-click the tray icon > Quit to actually exit.
 - **Session persistence:** After the first login, the browser remembers the session. Next launch may skip login entirely.
+- **Auto-update:** The app checks for updates on launch. When an update is available, a banner appears at the top -- click "Download" then "Restart & Update." You can also check manually via the tray icon > "Check for Updates..."
+- **In-app help:** Settings > Help tab has a quick start guide, CSV reference, and troubleshooting tips.
+- **Send logs:** Having issues? Go to Settings > General > "Send Logs via Email" to email recent app logs for debugging.
 
 ---
 
@@ -176,3 +179,4 @@ To export your accounts:
 | Browser doesn't open | Make sure Chrome or Edge is installed |
 | Login gets stuck | The account may have MFA enabled -- this app only works with MFA disabled |
 | Card shows red dot | An error occurred during login -- hover over the dot for details |
+| Need to share logs | Settings > General > "Send Logs via Email" -- opens your email client with recent logs pre-filled |

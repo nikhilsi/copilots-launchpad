@@ -46,6 +46,9 @@ One app. One click. The browser opens, logs in, and lands on the right page.
 - **Search & filter** — find accounts instantly across labels, usernames, groups, and destinations
 - **System tray** — close the window, app stays running; click tray icon to reopen
 - **CSV import/export** — bulk import accounts from CSV with preview screen, conflict detection, and defaults; export with optional password inclusion
+- **Auto-update** — checks GitHub Releases on launch; download and install updates from within the app, or via tray menu
+- **In-app help** — Help tab in Settings with quick start, CSV guide, troubleshooting
+- **Send Logs** — one-click email of recent app logs for troubleshooting (Settings > General)
 - **Cross-platform** — runs on macOS and Windows
 - **Encrypted credentials** — passwords encrypted via OS keychain (Electron safeStorage), never in the renderer process
 - **No admin rights** — per-user install, user-writable paths only
@@ -166,6 +169,7 @@ Output goes to `dist/`. The Windows build can be cross-compiled from macOS.
 | Browser automation | playwright-core |
 | Credential storage | Electron safeStorage (OS keychain) |
 | Data persistence | electron-store |
+| Auto-update | electron-updater (GitHub Releases) |
 | Code signing (Windows) | Azure Trusted Signing |
 | Packaging | electron-builder |
 | Platforms | macOS, Windows |
@@ -179,7 +183,9 @@ copilots-launchpad/
 │   ├── main.js          # Window, tray, IPC handlers, input validation
 │   ├── preload.js       # Context bridge (renderer ↔ main)
 │   ├── store.js         # Encrypted CRUD for accounts, destinations, settings
-│   └── launcher.js      # Playwright login flow, profile management
+│   ├── launcher.js      # Playwright login flow, profile management
+│   ├── updater.js       # Auto-updater (checks GitHub Releases)
+│   └── logger.js        # In-memory ring buffer for troubleshooting logs
 ├── src/
 │   ├── App.jsx          # Root component, view routing
 │   ├── pages/           # Launcher, Settings
@@ -235,13 +241,15 @@ Profiles are created on first launch and deleted when an account is removed (acr
 
 ## Login Flow
 
-After navigating to the destination URL, the app detects the scenario via `Promise.race`:
+After navigating to the destination URL, the app detects the scenario using sequential priority checks:
 
 | Scenario | Detection | Action |
 |----------|-----------|--------|
-| Session alive | Destination UI visible | Done — status turns green |
+| Sign-in button | Destination page has a "Sign in" button | Click it, then re-detect |
 | Login required | `input[name="loginfmt"]` visible | Fill username → Next → password → Sign In → "Stay signed in?" → Yes |
-| Stale session | Account picker visible | Click "Use another account" → fill credentials |
+| Account picker | Existing accounts listed with "Use another account" | Click matching account tile (→ password only) or "Use another account" (→ full login) |
+| Password only | `input[name="passwd"]` visible (user already known) | Fill password → Sign In → "Stay signed in?" → Yes |
+| Session alive | No login elements, not on login domain | Done — status turns green |
 
 Each step has a 30-second timeout. On failure, the card shows a red error dot.
 

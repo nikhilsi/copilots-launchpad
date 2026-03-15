@@ -39,13 +39,13 @@ export default function AccountModal({ account, destinations, onSave, onClose })
         </h3>
 
         <div className="mb-4">
-          <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block">Friendly Label</label>
+          <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block" title="A name you'll recognize on the launcher card (e.g. 'Test Premium', 'Global Admin')">Friendly Label</label>
           <input className={inputClass} value={form.label} placeholder="e.g. Global Admin"
             onChange={(e) => set('label', e.target.value)} />
         </div>
 
         <div className="mb-4">
-          <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block">Username / Email</label>
+          <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block" title="The Microsoft 365 login email for this account">Username / Email</label>
           <input className={inputClass} value={form.username} placeholder="user@contoso.onmicrosoft.com"
             onChange={(e) => set('username', e.target.value)} />
         </div>
@@ -68,12 +68,12 @@ export default function AccountModal({ account, destinations, onSave, onClose })
 
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
-            <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block">Group</label>
+            <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block" title="Accounts are grouped by this on the launcher (e.g. 'Admins', 'Testers', 'Premium')">Group</label>
             <input className={inputClass} value={form.group} placeholder="e.g. Admins"
               onChange={(e) => set('group', e.target.value)} />
           </div>
           <div>
-            <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block">Destination</label>
+            <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block" title="Where the browser lands after login (e.g. Copilot Chat, Admin Center). Add destinations in Settings > Destinations.">Destination</label>
             <select className={inputClass} value={form.destinationId}
               onChange={(e) => set('destinationId', e.target.value)}>
               {destinations.map((d) => (
@@ -84,7 +84,7 @@ export default function AccountModal({ account, destinations, onSave, onClose })
         </div>
 
         <div className="mb-4">
-          <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block">Color</label>
+          <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block" title="Accent color for this account's group on the launcher">Color</label>
           <div className="flex gap-2">
             {COLORS.map((c) => (
               <button key={c} onClick={() => set('color', c)} type="button"

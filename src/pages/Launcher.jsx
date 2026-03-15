@@ -2,9 +2,9 @@ import { useState } from 'react';
 import SearchBar from '../components/SearchBar';
 import GroupSection from '../components/GroupSection';
 import ThemeToggle from '../components/ThemeToggle';
-import { RocketIcon, GearIcon } from '../components/Icons';
+import { RocketIcon, GearIcon, HelpIcon } from '../components/Icons';
 
-export default function Launcher({ accounts, destinations, onNavigateSettings, onLaunch, theme, onChangeTheme }) {
+export default function Launcher({ accounts, destinations, onNavigateSettings, onNavigateHelp, onLaunch, theme, onChangeTheme }) {
   const [search, setSearch] = useState('');
   const [collapsedGroups, setCollapsedGroups] = useState({});
 
@@ -41,6 +41,13 @@ export default function Launcher({ accounts, destinations, onNavigateSettings, o
         <SearchBar value={search} onChange={setSearch} />
         <div className="flex items-center gap-2">
           <ThemeToggle theme={theme} onChangeTheme={onChangeTheme} />
+          <button
+            aria-label="Help"
+            className="bg-black/5 dark:bg-white/5 border border-black/[0.08] dark:border-white/[0.08] rounded-[10px] p-2 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors hover:bg-black/10 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-slate-200 flex items-center"
+            onClick={onNavigateHelp}
+          >
+            <HelpIcon />
+          </button>
           <button
             aria-label="Settings"
             className="bg-black/5 dark:bg-white/5 border border-black/[0.08] dark:border-white/[0.08] rounded-[10px] p-2 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors hover:bg-black/10 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-slate-200 flex items-center"

@@ -34,13 +34,13 @@ export default function DestModal({ dest, onSave, onClose }) {
         </h3>
 
         <div className="mb-4">
-          <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block">Label</label>
+          <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block" title="A short name for this destination (e.g. 'Copilot Chat', 'Admin Center')">Label</label>
           <input className={inputClass} value={form.label} placeholder="e.g. Copilot Chat"
             onChange={(e) => set('label', e.target.value)} />
         </div>
 
         <div className="mb-4">
-          <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block">URL</label>
+          <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-1.5 block" title="The URL the browser navigates to after login. Must start with http:// or https://">URL</label>
           <input className={inputClass} value={form.url} placeholder="https://m365.cloud.microsoft/chat"
             onChange={(e) => set('url', e.target.value)} />
         </div>

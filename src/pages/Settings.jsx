@@ -178,6 +178,7 @@ export default function Settings({
           <div>
             <div className="mb-6">
               <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-2 block">Browser</label>
+
               <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
                 Choose which browser to use for launching accounts. Profiles are isolated per browser — switching browsers will require a fresh login.
               </p>
@@ -203,6 +204,28 @@ export default function Settings({
                   Microsoft Edge
                 </button>
               </div>
+            </div>
+
+            <div className="mb-6 pt-6 border-t border-black/[0.06] dark:border-white/[0.06]">
+              <label className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-600 mb-2 block">Troubleshooting</label>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+                Having issues? Send recent app logs to help us debug.
+              </p>
+              <button
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-black/[0.08] dark:border-white/[0.08] rounded-lg text-sm font-medium cursor-pointer font-sans hover:bg-black/10 dark:hover:bg-white/10"
+                onClick={async () => {
+                  const logs = await window.api.getLogs();
+                  const body = encodeURIComponent(
+                    'Hi,\n\nHere are my recent CoPilots Launchpad logs:\n\n' +
+                    logs.join('\n') +
+                    '\n\n---\nPlease describe the issue above the logs.'
+                  );
+                  const subject = encodeURIComponent('CoPilots Launchpad - Logs');
+                  window.open(`mailto:nikhil@recurate.ai?subject=${subject}&body=${body}`);
+                }}
+              >
+                Send Logs via Email
+              </button>
             </div>
           </div>
         )}

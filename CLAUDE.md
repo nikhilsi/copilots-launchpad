@@ -123,7 +123,9 @@ copilots-launchpad/
 │   ├── main.js                  (Electron main process — window, tray, IPC handlers)
 │   ├── preload.js               (Context bridge — exposes IPC to renderer)
 │   ├── store.js                 (electron-store wrapper — encrypted CRUD)
-│   └── launcher.js              (Playwright login flow — scenario detection, credential fill, profile management)
+│   ├── launcher.js              (Playwright login flow — scenario detection, credential fill, profile management)
+│   ├── updater.js               (Auto-updater — checks GitHub Releases, IPC events)
+│   └── logger.js                (In-memory ring buffer — 200 entries, timestamps)
 │
 ├── src/
 │   ├── App.jsx                  (Router — Launcher vs Settings view)
@@ -171,18 +173,25 @@ All communication between renderer (React) and main (Electron) goes through thes
 | `destinations:delete` | renderer → main | Delete destination |
 | `launch:account` | renderer → main | Trigger Playwright login flow |
 | `launch:status` | main → renderer | Status update (launching/open/error) |
+| `logs:get` | renderer → main → renderer | Get recent log entries |
+| `update:check` | renderer → main | Trigger update check |
+| `update:download` | renderer → main | Download available update |
+| `update:install` | renderer → main | Quit and install update |
+| `update:*` | main → renderer | Update status events (available/progress/downloaded/error) |
 
 ---
 
 ## Playwright Login Flow
 
-Three scenarios detected via `Promise.race` after navigating to destination URL:
+Five scenarios detected via sequential priority checks after navigating to destination URL:
 
 | Scenario | Detection | Action |
 |----------|-----------|--------|
-| A — Session alive | Destination UI element visible | Done. Status → green. |
+| A — Sign-in button | Destination page has "Sign in" button | Click it → re-detect |
 | B — Login required | `input[name="loginfmt"]` visible | Run credential flow |
-| C — Stale session | Account picker screen | Click "Use another account" → Flow B |
+| C — Account picker | Existing accounts + "Use another account" | Click matching tile → password, or "Use another account" → full flow |
+| D — Password only | `input[name="passwd"]` visible | Fill password only |
+| E — Session alive | No login elements, not on login domain | Done. Status → green. |
 
 **Credential flow:** username → Next → password → Sign In → "Stay signed in?" → Yes → done.
 
